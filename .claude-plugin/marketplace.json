@@ -1,0 +1,17 @@
+{
+  "name": "feedly-skills",
+  "owner": {
+    "name": "Feedly",
+    "url": "https://feedly.com"
+  },
+  "description": "Community CTI skills for Claude, maintained by Feedly.",
+  "plugins": [
+    {
+      "name": "feedly-cti-skills",
+      "source": "./plugins/feedly-cti-skills",
+      "description": "Skills covering threat intel triage, IOC enrichment, MITRE ATT&CK mapping, phishing analysis, report writing, and dark web monitoring workflows.",
+      "category": "security",
+      "keywords": ["cti", "threat-intelligence", "security", "soc", "ioc"]
+    }
+  ]
+}

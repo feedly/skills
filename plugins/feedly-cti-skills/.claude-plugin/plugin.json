@@ -1,0 +1,10 @@
+{
+  "name": "feedly-cti-skills",
+  "description": "Cyber threat intelligence workflows: IOC enrichment, alert triage, ATT&CK mapping, report writing, and more.",
+  "author": {
+    "name": "Feedly",
+    "url": "https://feedly.com"
+  },
+  "license": "MIT",
+  "keywords": ["cti", "threat-intelligence", "security"]
+}
