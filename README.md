@@ -38,6 +38,18 @@ See that directory's README for the skill format and contribution guidelines.
 | --- | --- |
 | _(none yet — skeleton repo, skills to be added)_ | |
 
+### Prompts
+
+Standalone prompts (not packaged as Claude Code skills) are hosted under [`prompts/`](prompts/).
+
+#### Feedly's Complete CTI Prompt Library
+
+[`prompts/feedly-complete-cti-prompt-library/`](prompts/feedly-complete-cti-prompt-library/) hosts *Feedly's Complete CTI Prompt Library* —
+44 prompts from four Feedly TI Essentials posts, mirrored here verbatim (unmodified,
+as published) for easy access and version control. These are plain prompts, not
+Claude Code skills — copy/paste them as needed. See
+[`prompts/feedly-complete-cti-prompt-library/README.md`](prompts/feedly-complete-cti-prompt-library/README.md) for the full index and usage terms.
+
 ## Versioning
 
 `plugin.json` currently omits a `version` field — every commit to `main` is
