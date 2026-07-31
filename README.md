@@ -1,15 +1,14 @@
-# feedly-skills
+# Feedly Skills and Prompts
 
-A [Claude Code plugin marketplace](https://docs.claude.com/en/docs/claude-code/plugins) of
-community cyber threat intelligence (CTI) skills, maintained by [Feedly](https://feedly.com).
+Community cyber threat intelligence (CTI) resources for Claude, maintained by
+[Feedly](https://feedly.com), in two forms: a [Claude Code plugin marketplace](https://docs.claude.com/en/docs/claude-code/plugins) 
+of installable skills for use inside Claude, and a library of standalone prompts you can copy and paste anywhere.
 
-This repo hosts both the marketplace and the single plugin it distributes:
-`feedly-cti-skills` — a bundle of skills covering threat intel triage, IOC
-enrichment, MITRE ATT&CK mapping, phishing analysis, report writing, and
-dark web monitoring workflows.
-
-All skills ship as one plugin so there's a single install command. We may
-split into themed plugins later if usage patterns call for it.
+The marketplace distributes a single plugin, `feedly-cti-skills`, bundling
+skills for threat intel triage, IOC enrichment, MITRE ATT&CK mapping,
+phishing analysis, report writing, and dark web monitoring workflows. All
+skills ship together so there's one install command; we may split into
+themed plugins later if usage patterns call for it.
 
 ## Install
 
