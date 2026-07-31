@@ -24,9 +24,12 @@ Then reload plugins (`/reload-plugins` or restart Claude Code) to pick up the sk
 ### claude.ai / Claude Cowork / Claude Desktop
 
 1. Go to **Customize → Plugins → Add marketplace**.
-2. Paste the GitHub URL for this repo (`https://github.com/feedly/skills`), or upload a
-   packaged plugin file directly.
+2. Paste the GitHub URL for this repo (`https://github.com/feedly/skills`)
 3. Install `feedly-cti-skills` from the marketplace listing.
+
+Alternatively, visit [Releases](https://github.com/feedly/skills/releases) to
+download each skill as a standalone, bundled `.skill` file — useful if you'd
+rather install a single skill by hand than add the whole marketplace.
 
 ## What's included
 

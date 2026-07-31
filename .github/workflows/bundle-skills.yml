@@ -1,0 +1,40 @@
+name: Bundle skills
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to publish the bundled .skill files under"
+        required: true
+        default: "skills-latest"
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bundle each skill as a .skill file
+        run: |
+          mkdir -p dist
+          cd plugins/feedly-cti-skills/skills
+          for dir in */; do
+            name="${dir%/}"
+            [ -f "$dir/SKILL.md" ] || continue
+            zip -rq "../../../dist/${name}.skill" "$dir" -x '*.DS_Store'
+          done
+          ls -la ../../../dist
+
+      - name: Publish release with bundled skills
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ inputs.tag }}" dist/*.skill \
+            --repo "${{ github.repository }}" \
+            --title "${{ inputs.tag }}" \
+            --notes "Bundled .skill files for each skill in feedly-cti-skills, built from $(git rev-parse --short HEAD)." \
+            || gh release upload "${{ inputs.tag }}" dist/*.skill \
+              --repo "${{ github.repository }}" \
+              --clobber
