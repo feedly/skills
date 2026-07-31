@@ -36,7 +36,7 @@ See that directory's README for the skill format and contribution guidelines.
 
 | Skill | Description |
 | --- | --- |
-| _(none yet — skeleton repo, skills to be added)_ | |
+| [`intelligence-requirements-builder`](plugins/feedly-cti-skills/skills/intelligence-requirements-builder/) | Turns a vague stakeholder ask into a structured set of intelligence requirements (EEIs, collection guidance, success criteria, deliverables, criticality rating), output as markdown, Word, and CSV. |
 
 ### Prompts
 
