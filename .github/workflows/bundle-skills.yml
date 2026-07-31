@@ -19,13 +19,13 @@ jobs:
       - name: Bundle each skill as a .skill file
         run: |
           mkdir -p dist
-          cd plugins/feedly-cti-skills/skills
+          cd skills
           for dir in */; do
             name="${dir%/}"
             [ -f "$dir/SKILL.md" ] || continue
-            zip -rq "../../../dist/${name}.skill" "$dir" -x '*.DS_Store'
+            zip -rq "../dist/${name}.skill" "$dir" -x '*.DS_Store'
           done
-          ls -la ../../../dist
+          ls -la ../dist
 
       - name: Publish release with bundled skills
         env:

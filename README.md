@@ -4,11 +4,10 @@ Community cyber threat intelligence (CTI) resources for Claude, maintained by
 [Feedly](https://feedly.com), in two forms: a [Claude Code plugin marketplace](https://docs.claude.com/en/docs/claude-code/plugins) 
 of installable skills for use inside Claude, and a library of standalone prompts you can copy and paste anywhere.
 
-The marketplace distributes a single plugin, `feedly-cti-skills`, bundling
-skills for threat intel triage, IOC enrichment, MITRE ATT&CK mapping,
-phishing analysis, report writing, and dark web monitoring workflows. All
-skills ship together so there's one install command; we may split into
-themed plugins later if usage patterns call for it.
+This repo is both the marketplace and the single plugin it distributes,
+`feedly-cti-skills`, bundling skills for threat intel triage, IOC
+enrichment, MITRE ATT&CK mapping, phishing analysis, report writing, and
+dark web monitoring workflows.
 
 ## Install
 
@@ -33,12 +32,11 @@ rather install a single skill by hand than add the whole marketplace.
 
 ## What's included
 
-Skills live under [`plugins/feedly-cti-skills/skills/`](plugins/feedly-cti-skills/skills/).
-See that directory's README for the skill format and contribution guidelines.
+Skills live under [`skills/`](skills/), one folder per skill, each containing a `SKILL.md`.
 
 | Skill | Description |
 | --- | --- |
-| [`intelligence-requirements-builder`](plugins/feedly-cti-skills/skills/intelligence-requirements-builder/) | Turns a vague stakeholder ask into a structured set of intelligence requirements (EEIs, collection guidance, success criteria, deliverables, criticality rating), output as markdown, Word, and CSV. |
+| [`intelligence-requirements-builder`](skills/intelligence-requirements-builder/) | Turns a vague stakeholder ask into a structured set of intelligence requirements (EEIs, collection guidance, success criteria, deliverables, criticality rating), output as markdown, Word, and CSV. |
 
 ### Prompts
 

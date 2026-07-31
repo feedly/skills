@@ -8,10 +8,11 @@
   "plugins": [
     {
       "name": "feedly-cti-skills",
-      "source": "./plugins/feedly-cti-skills",
+      "source": "./",
       "description": "Skills covering threat intel triage, IOC enrichment, MITRE ATT&CK mapping, phishing analysis, report writing, and dark web monitoring workflows.",
       "category": "security",
-      "keywords": ["cti", "threat-intelligence", "security", "soc", "ioc"]
+      "keywords": ["cti", "threat-intelligence", "security", "soc", "ioc"],
+      "skills": "./skills/"
     }
   ]
 }

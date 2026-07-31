@@ -6,5 +6,6 @@
     "url": "https://feedly.com"
   },
   "license": "MIT",
-  "keywords": ["cti", "threat-intelligence", "security"]
+  "keywords": ["cti", "threat-intelligence", "security"],
+  "skills": "./skills/"
 }
