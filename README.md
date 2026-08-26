@@ -37,6 +37,8 @@ Skills live under [`skills/`](skills/), one folder per skill, each containing a 
 | Skill | Description |
 | --- | --- |
 | [`intelligence-requirements-builder`](skills/intelligence-requirements-builder/) | Turns a vague stakeholder ask into a structured set of intelligence requirements (EEIs, collection guidance, success criteria, deliverables, criticality rating), output as markdown, Word, and CSV. |
+| [`cti-risk-delta`](skills/cti-risk-delta/) | Rates a threat with OWASP before and after CTI action, with a financial exposure band sized to the organization. Output as markdown and Word. |
+| [`create-sigma-rule`](skills/create-sigma-rule/) | Turns a threat report, advisory, malware write-up, or log sample into draft Sigma detection rules, checked with sigma-cli when a shell is available, plus a validation note. |
 
 ### Prompts
 
