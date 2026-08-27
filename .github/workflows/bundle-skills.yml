@@ -1,11 +1,13 @@
 name: Bundle skills
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       tag:
         description: "Release tag to publish the bundled .skill files under"
-        required: true
+        required: false
         default: "skills-latest"
 
 jobs:
@@ -30,11 +32,12 @@ jobs:
       - name: Publish release with bundled skills
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || 'skills-latest' }}
         run: |
-          gh release create "${{ inputs.tag }}" dist/*.skill \
+          gh release create "$TAG" dist/*.skill \
             --repo "${{ github.repository }}" \
-            --title "${{ inputs.tag }}" \
+            --title "$TAG" \
             --notes "Bundled .skill files for each skill in feedly-cti-skills, built from $(git rev-parse --short HEAD)." \
-            || gh release upload "${{ inputs.tag }}" dist/*.skill \
+            || gh release upload "$TAG" dist/*.skill \
               --repo "${{ github.repository }}" \
               --clobber

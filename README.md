@@ -26,19 +26,24 @@ Then reload plugins (`/reload-plugins` or restart Claude Code) to pick up the sk
 2. Paste the GitHub URL for this repo (`https://github.com/feedly/skills`)
 3. Install `feedly-cti-skills` from the marketplace listing.
 
-Alternatively, visit [Releases](https://github.com/feedly/skills/releases) to
-download each skill as a standalone, bundled `.skill` file — useful if you'd
-rather install a single skill by hand than add the whole marketplace.
+Alternatively, download a standalone `.skill` file from the
+[`skills-latest` release](https://github.com/feedly/skills/releases/tag/skills-latest)
+if you'd rather install a single skill by hand than add the whole marketplace:
+
+- [intelligence-requirements-builder.skill](https://github.com/feedly/skills/releases/download/skills-latest/intelligence-requirements-builder.skill)
+- [cti-risk-delta.skill](https://github.com/feedly/skills/releases/download/skills-latest/cti-risk-delta.skill)
+- [create-sigma-rule.skill](https://github.com/feedly/skills/releases/download/skills-latest/create-sigma-rule.skill)
 
 ## What's included
 
 Skills live under [`skills/`](skills/), one folder per skill, each containing a `SKILL.md`.
+Each skill is also published as a downloadable `.skill` bundle on every push to `main`.
 
-| Skill | Description |
-| --- | --- |
-| [`intelligence-requirements-builder`](skills/intelligence-requirements-builder/) | Turns a vague stakeholder ask into a structured set of intelligence requirements (EEIs, collection guidance, success criteria, deliverables, criticality rating), output as markdown, Word, and CSV. |
-| [`cti-risk-delta`](skills/cti-risk-delta/) | Rates a threat with OWASP before and after CTI action, with a financial exposure band sized to the organization. Output as markdown and Word. |
-| [`create-sigma-rule`](skills/create-sigma-rule/) | Turns a threat report, advisory, malware write-up, or log sample into draft Sigma detection rules, checked with sigma-cli when a shell is available, plus a validation note. |
+| Skill | Description | Download |
+| --- | --- | --- |
+| [`intelligence-requirements-builder`](skills/intelligence-requirements-builder/) | Turns a vague stakeholder ask into a structured set of intelligence requirements (EEIs, collection guidance, success criteria, deliverables, criticality rating), output as markdown, Word, and CSV. | [.skill](https://github.com/feedly/skills/releases/download/skills-latest/intelligence-requirements-builder.skill) |
+| [`cti-risk-delta`](skills/cti-risk-delta/) | Rates a threat with OWASP before and after CTI action, with a financial exposure band sized to the organization. Output as markdown and Word. | [.skill](https://github.com/feedly/skills/releases/download/skills-latest/cti-risk-delta.skill) |
+| [`create-sigma-rule`](skills/create-sigma-rule/) | Turns a threat report, advisory, malware write-up, or log sample into draft Sigma detection rules, checked with sigma-cli when a shell is available, plus a validation note. | [.skill](https://github.com/feedly/skills/releases/download/skills-latest/create-sigma-rule.skill) |
 
 ### Prompts
 
