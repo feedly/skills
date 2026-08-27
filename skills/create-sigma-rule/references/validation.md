@@ -245,6 +245,32 @@ means rewrite `'*\foo.exe'` as `|endswith: '\foo.exe'`, `number_as_string` means
 event ID, `dangling_detection` usually means a filter was defined and left out of the
 condition, which is a genuine logic bug and not a style nit.
 
+**`dangling_detection` also closes off a construction the layered layout invites**, so it is
+worth knowing the exact behaviour before you reach for it. A three-layer rule — anchor,
+invariant, discriminator — makes it tempting to define the discriminator and leave the condition
+requiring only the first two, as an "available but not required" flag selection. That is not a
+Sigma construct. Tested on sigma-cli 3.1.0 / pySigma 1.5.0, with a `process_creation` rule whose
+`selection_discriminator` held six command-line flag variants:
+
+```
+condition: selection_anchor and selection_invariant     # selection_discriminator defined, unreferenced
+  → Found 0 errors, 0 condition errors and 1 issues.
+    DanglingDetectionIssue  HIGH  Rule defines detection that is not referenced from condition
+    Check failure
+
+condition: all of selection_*                            # discriminator required
+  → Found 0 errors, 0 condition errors and 0 issues.
+
+selection_discriminator deleted, condition: selection_anchor and selection_invariant
+  → Found 0 errors, 0 condition errors and 0 issues.
+```
+
+So when Stage 1's default-state analysis says the flags cannot be required — the tool's
+no-argument invocation is in scope — the flag selection comes **out** of the YAML and into the
+validation note, or becomes a sibling rule linked with `related:`. Both of those pass clean. What
+fails is parking it in the file, and it fails at HIGH severity, which under `-i` takes the whole
+run down.
+
 One validator needs a judgement call rather than a fix. `escaped_wildcard` fires whenever a
 value contains `\*` or `\?`, which is the only way to match a literal asterisk, and under
 `-i` a LOW-severity issue still fails the run. This bites when the behavior you are detecting

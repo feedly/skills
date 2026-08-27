@@ -7,9 +7,14 @@
 
 ## Source
 
-<What this was drafted from: the report title and permalink, the log sample, or the behavior
-description. Quote the specific sentence or command line the logic came from, so the claim
-can be traced back in six months.>
+<What this was drafted from: the report title and permalink, the log sample, the vendor or tool
+documentation page, or the behavior description. Quote the specific sentence, parameter entry or
+command line the logic came from, so the claim can be traced back in six months.>
+
+**Where the source was tool documentation**, name the two things the documentation does not
+contain: the misuse being detected, and who framed it — normally the requester, since a vendor
+page documenting a supported cmdlet asserts nothing adversarial. State which documented
+parameters are being used as discriminators.
 
 ## Behavior targeted
 
@@ -23,6 +28,31 @@ invariant behavior>, tagged `stp.<N>`.
 
 **Why:** <One or two sentences. What survives if the actor recompiles, renames the binary,
 or rotates infrastructure, and what does not.>
+
+**Layers:** <which selection holds the anchor, which the invariant, which the discriminator. If
+a layer is absent, say which and what it costs — no discriminator means this is a hunting query.>
+
+## Default state
+
+**With no arguments, the tool or behavior does:** <one line. For a documented tool this comes
+from the vendor's own parameter table — `Get-AppLockerPolicy` with no parameters returns the
+local policy.>
+
+**In scope?** <yes / no / no meaningful default>
+
+**Consequence for the condition:** <If the default is in scope, the flag selection cannot be
+required by the condition — say how it was handled. If out of scope, say why, which makes
+requiring the flags legitimate narrowing rather than an INFERRED tightening.>
+
+## Resilience record
+
+All three Stage 4c questions, answered. "Not considered" is not an outcome.
+
+| Question | Outcome | Why |
+|---|---|---|
+| `OriginalFileName` | <added with confirmed value / omitted, renaming gap recorded / N/A> | <e.g. confirmed in `sigma-spec.md`'s table; or Security 4688 does not carry the field; or the anchor is a path, so there is no original name to assert> |
+| Splunk OR-grouping (only if the field was added and the target is Splunk) | <sibling rule / kept, deployed query needs hand-bracketing / N/A, target is not Splunk> | <what the converted query actually showed> |
+| `\|windash` | <applied / explicit dash-variant `contains` list / N/A> | <e.g. attacker-chosen flags on a non-Splunk target; or Splunk, so written out; or the flags are OS-generated> |
 
 ## Evidence ledger
 
@@ -68,13 +98,26 @@ Everything the draft assumed rather than knew. Testing confirms or corrects each
 
 Each one needs a tuning action, otherwise it is just a warning.
 
+Where the value is not known, give the exclusion's **shape** and leave the value to the analyst.
+A pattern with the value openly blank is a tuning strategy; a plausible concrete value invented
+to fill the gap is a fabrication.
+
 | Benign trigger | Likelihood in a typical environment | Tuning action |
 |---|---|---|
 | <e.g. Administrative retrieval of CRLs from internal PKI> | <likely / possible / unlikely> | <add `filter_main_internal_pki` with the real endpoint> |
+| <e.g. Service accounts running scheduled policy audits> | <likely> | <exclude accounts matching your service-account convention — `User\|re: '^SVC_.*'` if yours follows that shape — after confirming against a week of hits. This draft does not know the convention> |
 
 ## Evasion review
 
-**Covered:** <renaming via OriginalFileName, dash variants via windash, and so on.>
+The five that cost the adversary nothing, each with an answer rather than a consideration.
+
+| Evasion | Covered? | How, or why not |
+|---|---|---|
+| Binary renaming | <yes / no / N/A> | <`OriginalFileName` added; or the gap, per the resilience record above> |
+| Flag obfuscation | <yes / no / N/A> | <`\|windash`, or the explicit dash-variant list on Splunk> |
+| Path variation | <yes / no / N/A> | <`\|endswith` rather than a full path; or the anchored path justified> |
+| **Default state** | <yes / no> | <does the rule fire with no flags at all? Strike every flag condition and see what remains> |
+| Equivalent tooling | <yes / no> | <sibling binaries that achieve the same effect: widened, sibling rules written, or named as a gap> |
 
 **Residual gaps:** <What this rule does not cover and why. Sibling tooling that achieves the
 same effect, argument forms not matched, alternative log sources. Be specific, because the

@@ -9,9 +9,14 @@
 #   critical             → "Malware" / "Exploit" / "Attempt" / "<Actor> Activity"
 
 # The example values below are placeholders that parse as valid YAML, so `sigma check` will
-# run on this file. It will not come back clean: the placeholder title and this file's own
-# name raise SigmahqTitleCaseIssue and the two filename validators, which is inherent to a
-# skeleton and not a defect. Replace every value and rename the file, and those go away.
+# run on this file. Verified on sigma-cli 3.1.0 / pySigma 1.5.0:
+#   sigma check -i -x d3_fendtag assets/sigma-rule-template.yml
+#     → Found 0 errors, 0 condition errors and 0 issues.
+# The SigmaHQ-specific title-case and filename validators do NOT fire in a default run, so a
+# clean result here is expected and is not evidence that your own rule will pass. Earlier
+# versions of this comment claimed the opposite; the command above is what actually happens.
+# Note that a bare `sigma check -i` (without -x d3_fendtag) can die on the D3FEND validator's
+# own network egress and print no summary at all - read the output, do not trust the exit code.
 #
 # Verify every attack.* tag with scripts/attack_check.py. The tactic list changed in
 # ATT&CK v19 and `attack.defense-evasion` is no longer valid.
@@ -44,13 +49,26 @@ logsource:
     # service:
     definition: <any non-default telemetry requirement, for example script block logging>
 detection:
+    # Three layers, one selection each, so the analyst can suppress one without losing the
+    # others. EVERY selection defined here must be referenced by the condition: an unused
+    # identifier is DanglingDetectionIssue at HIGH and fails `sigma check`. A layer the rule
+    # does not require belongs in the validation note or in a sibling rule, not parked here.
+    #
     # the anchor: the narrowest condition that must be true, meaning the binary, the key,
     # or the API call. Add OriginalFileName as an OR alternative when the anchor is a
     # known binary, using a confirmed value from the table in references/sigma-spec.md.
+    # Stage 4c of SKILL.md decides that, and records the outcome either way.
     selection_anchor:
         Image|endswith: '\replace.exe'
+    # the invariant: the cmdlet, call or syntax the technique cannot function without.
+    # Merge into the anchor only when they are genuinely the same condition.
+    selection_invariant:
+        CommandLine|contains: 'replace-cmdlet-or-invariant-syntax'
     # the discriminator: what makes it malicious rather than routine, meaning the argument
-    # pattern, the target path, or the parent. Use |windash on attacker-controlled flags.
+    # pattern, the target path, or the parent. Use |windash on attacker-controlled flags,
+    # except on Splunk - write the dash variants out as an explicit contains list there.
+    # If Stage 1's default-state analysis put the no-arguments invocation in scope, these
+    # flags cannot be required: delete this block and note them, or write a sibling rule.
     selection_discriminator:
         CommandLine|contains: 'replace'
     # never malicious anywhere; part of the rule's correctness
