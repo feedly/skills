@@ -1,19 +1,19 @@
 ---
 name: create-sigma-rule
 description: >-
-  Turns a threat intelligence report, an advisory, a malware analysis, or a raw
-  log sample into draft Sigma detection rules, checked against sigma-cli where a
-  shell exists and labelled "not machine-validated" where it does not, paired
-  with a validation note covering assumptions, expected false positives, evasion
-  gaps, and a retrohunt test plan. Reads a saved organizational profile so the
-  rules match the team's SIEM backend, onboarded telemetry, pipelines, and naming
-  conventions rather than generic defaults. Use this skill whenever someone
-  shares a threat report, vendor blog, advisory, incident write-up, command line,
-  or log excerpt and wants detection coverage, and whenever they say things like
-  "write a Sigma rule for this", "turn this report into detections", "draft a
-  detection for this TTP", or "we should be detecting that". Do NOT use for YARA
-  rules, for consultative detection questions with no report or log sample to
-  draft from, or for converting a rule you already have to another backend.
+  Turns a threat report, a malware analysis, vendor tool documentation, or a raw
+  log sample into draft Sigma detection rules, validated against sigma-cli where
+  a shell exists and labelled "not machine-validated" where not, each paired with
+  a validation note covering assumptions, false positives, evasion gaps, and a
+  test plan. Reads a saved organizational profile so rules match the team's SIEM
+  backend, telemetry, pipelines, and naming conventions, not generic defaults.
+  Use whenever someone shares a threat report, vendor blog, advisory, incident
+  write-up, command line, log excerpt, or documentation for a binary, cmdlet or
+  API being misused, and wants detection coverage, or says things like "write a
+  Sigma rule for this", "turn this report into detections", "draft a detection
+  for this TTP", or "we should be detecting that". Do NOT use for YARA rules, for
+  consultative detection questions with no report or log sample to draft from, or
+  for converting a rule you already have to another backend.
 ---
 
 # Create Sigma Rule
@@ -40,20 +40,37 @@ Stage 4 and check the output against them at Stage 7.
 
 ## Reference material
 
-Load these as needed rather than all at once:
+**Converge before you read.** Stop reading reference material the moment you have enough to
+draft, and do not issue another round of file reads to gather more. Each file below carries the
+stage before which you must not open it, and opening one early is the most reliable way to burn
+a run's context before it produces a rule. This is not hypothetical: testers have watched
+Stages 1 and 2 loop over the choice of discriminator and never converge, with 180 lines of
+`sigma-spec.md` read before a single field name was needed.
 
-| File | Read it when |
-|---|---|
-| `references/sigma-spec.md` | Before writing any YAML. Metadata fields, logsource taxonomy, field names by category, modifiers, condition grammar. |
-| `references/rule-quality.md` | At Stage 5. Abstraction ladder, false positive engineering, evasion review, anti-patterns, pre-flight checklist. |
-| `references/validation.md` | At Stage 6. How to install and run sigma-cli, what each validator means, what to do when there is no shell. |
-| `references/feedly-grounding.md` | Only at optional Stage 8, and only when Feedly MCP tools are present. |
-| `scripts/attack_check.py` | At Stage 6, to verify ATT&CK tags against the live taxonomy. Run it, do not read it. |
-| `scripts/check_grouping.py` | At Stage 6, to catch converted queries whose operator grouping does not match the rule's intent. Run it, do not read it. |
-| `assets/org-profile-template.md` | At Stage 0, when no profile exists yet. |
-| `assets/sigma-rule-template.yml` | At Stage 4, as the structural skeleton. |
-| `assets/validation-note-template.md` | At Stage 7. |
-| `assets/splunk-grouping-test/` | Only if someone asks about the Splunk OR-bracketing warning. A minimal reproduction plus the protocol to settle an open question about it. Not part of the drafting workflow. |
+**Treat the middle column as a gate, not a suggestion.** When you find yourself reaching for a
+third file to settle a judgement call, the judgement is yours to make and record as a Stage 2
+assumption instead. An assumption written down is recoverable; a run that never reached Stage 4
+is not.
+
+| File | Do not open before | What it is for |
+|---|---|---|
+| `references/rule-quality.md` | Stage 3 | The abstraction ladder, at the point you set the level. Again at Stage 5 for the quality pass, false positive engineering, the evasion review, anti-patterns, and the pre-flight checklist. |
+| `references/sigma-spec.md` | **Stage 4** | Metadata fields, logsource taxonomy, field names by category, modifiers, condition grammar. It is 750 lines and none of it helps before you are writing YAML. |
+| `references/validation.md` | Stage 6 | How to install and run sigma-cli, what each validator means, what to do when there is no shell. |
+| `references/feedly-grounding.md` | Stage 8 | Routing for Feedly lookups. Only when Feedly MCP tools are present. |
+| `scripts/attack_check.py` | Stage 6 | Verifying ATT&CK tags against the live taxonomy. Run it, do not read it. |
+| `scripts/check_grouping.py` | Stage 6 | Catching converted queries whose operator grouping does not match the rule's intent. Run it, do not read it. |
+| `assets/org-profile-template.md` | Stage 0 | The first-run interview. Only when no profile exists yet. |
+| `assets/sigma-rule-template.yml` | Stage 4 | The structural skeleton. |
+| `assets/validation-note-template.md` | Stage 7 | The note's structure. |
+| `assets/splunk-grouping-test/` | Never, unless asked | A minimal reproduction of the Splunk OR-bracketing warning plus the protocol to settle an open question about it. Not part of the drafting workflow. |
+
+Two facts are cheaper to state here than to fetch, because they shape the rule's structure at
+Stage 3 and you would otherwise open `sigma-spec.md` early to find them. On Windows process
+creation, `OriginalFileName` is what defeats binary renaming and `|windash` is what defeats
+dash-character substitution. Both are **mandatory decisions at Stage 4**, recorded either way,
+rather than optional polish — Stage 4's resilience gate is where that is settled, and Stage 3 is
+where they change how you lay the selections out.
 
 Everything here is written against Sigma specification v2.1.0, pySigma 1.5.0, and
 sigma-cli 3.1.0. If `sigma version` reports something newer, say so in the delivery and
@@ -80,6 +97,19 @@ because a team running two SIEMs plausibly has `sigma-org-profile-splunk.md` and
 2. The working directory, uploaded files, and one level of obvious subdirectory — with a shell,
    `find . -iname '*sigma-org-profile*.md'` covers it in one command.
 3. Anywhere the user points you.
+
+**Then act from this table.** It is the whole decision, and it is here so you do not have to
+read the paragraphs below it — or open the 200-line template — to find out what to do when
+there is no profile and nobody to ask. Read the row you land on, act, and go to Stage 1. The
+paragraphs after the table are the reasoning behind the rows, for the cases where you need it.
+
+| What you found | Do this | Then |
+|---|---|---|
+| Exactly one profile | Read it. Summarize backend, pipeline, collected log sources, house conventions. Confirm nothing has changed | Stage 1. Do not re-ask the interview questions |
+| Several profiles | Ask which applies. Unattended, take the one whose backend the input suits and say which and why | Validate against **that backend only**. Record the choice and that the other was not checked |
+| One profile, self-contradictory | Name the contradiction, resolve toward the primary backend | Flag the rest in the delivery and offer to correct the profile |
+| No profile, user available | Run the interview from `assets/org-profile-template.md` in three or four grouped rounds. Every question has a marked default, so "use the defaults" is a valid answer | Write the profile out, then Stage 1 |
+| **No profile, nobody available** | **Do not block. Proceed on the template's defaults** | Record every default as a Stage 2 assumption. Write `sigma-org-profile-DRAFT.md` marked unconfirmed, **beside the package directory, not inside it**, and never into a shared project. Say in the delivery that false positive analysis is prose and tuning actions rather than `filter_*` blocks |
 
 **If exactly one profile exists**, read it, summarize the three or four facts that will
 shape this draft (backend, pipeline, collected log sources, house conventions), and confirm
@@ -150,9 +180,80 @@ so.
 
 Classify what has arrived and state your read before doing any work.
 
-- **Input type.** A behavior description, a log or telemetry sample, or report prose with
-  embedded artifacts. A raw log line is the most valuable of the three, because it gives
-  real field names and value formats from the environment.
+- **Input type.** One of four, and they need different reading:
+
+  | Type | What it gives you | What is missing |
+  |---|---|---|
+  | A raw log or telemetry sample | Real field names and value formats from the environment. The most valuable input there is | The adversarial framing, and usually the wider chain |
+  | Report prose with embedded artifacts | Command lines, paths, the intrusion narrative | The telemetry's own field names |
+  | A behavior description | The behavior, stated plainly | Everything concrete |
+  | **Vendor or tool documentation** | The tool's complete, authoritative parameter set and its documented defaults | **The adversarial behavior, and which parameters matter** |
+
+- **Documented-tool inputs invert the usual work.** This skill's default reading — outcome
+  language on top, observable underneath — assumes the source is describing an intrusion. Vendor
+  documentation for a legitimate tool describes no intrusion at all. Microsoft's page for
+  `Get-AppLockerPolicy` documents a supported administrative cmdlet, and nothing on it is
+  malicious.
+
+  So when the input is documentation, name two things explicitly before going further, because
+  neither is stated in the source and a run that skips them drafts a rule on the tool's name
+  alone:
+
+  1. **The misuse is the adversarial behavior.** Take it from the user's framing of why they are
+     asking — "adversaries are using PowerShell to enumerate AppLocker policies" is the
+     behavior; the documentation is only the parameter reference for it. Where the user gave no
+     framing, ask for it at Stage 2 rather than inventing an adversarial use for a
+     documented tool.
+  2. **The documented parameters are the detection anchors.** A cmdlet, API or CLI tool's
+     documented flags are its most durable discriminators, because they are attacker-chosen,
+     they survive as an argument pattern through renaming and recompilation, and the vendor has
+     already enumerated all of them for you. `-Effective`, `-Ldap` and `-Local` are not trivia
+     in the reference table; they are the rule's discriminator, and a rule matching only the
+     cmdlet name has thrown away the strongest signal the input contained. Read the parameter
+     list as the detection surface it is.
+
+  State both in the read-back. A documented-tool draft that never names the misuse it is
+  detecting, or that anchors only on the tool's name, has failed this stage regardless of what
+  the YAML looks like.
+
+- **Default State Analysis — required, every input type.** State what the tool or behavior does
+  when **no arguments are supplied**, and whether that default is in scope. This is a one-line
+  answer and skipping it is how a rule ends up blind to the most common invocation of the
+  behavior it was written for.
+
+  `Get-AppLockerPolicy` is the worked example: run with no parameters it returns the **local**
+  policy, so the bare `Get-AppLockerPolicy` with no flags is a real enumeration event. A rule
+  requiring one of `-Effective`, `-Ldap` or `-Local` misses it entirely — and that gap is
+  present in the community rule for this cmdlet, which is otherwise more resilient than most.
+  The same shape recurs everywhere: `whoami` with no flags, `net user` with no arguments,
+  `reg query` on a bare key.
+
+  Write the answer as one of three, and carry it into the note:
+
+  - **Default is in scope** → the flags cannot be required by the condition. Take one of the two
+    constructions below; do not simply leave the flag selection defined and unreferenced.
+  - **Default is out of scope** → say why, and requiring the flags is then legitimate narrowing
+    with `condition: all of selection_*`.
+  - **No meaningful default** → the tool refuses to run without arguments. Say so and move on.
+
+  **The two legal constructions when the default is in scope**, both verified against
+  sigma-cli 3.1.0:
+
+  | Construction | Shape | When |
+  |---|---|---|
+  | **Drop the flags from the rule** | `condition: selection_anchor and selection_invariant`, with the documented flags recorded in the note as an escalation and triage aid rather than as YAML | One rule is wanted, and the bare invocation matters as much as the flagged one |
+  | **Sibling pair** | A hunting rule at `level: informational` with no flags required, plus a narrower rule requiring them at a higher level, linked with `related:` and `type: similar` | Both the broad hunt and a tunable higher-severity alert are wanted. Counts as one entry against the Stage 3 cap of three, being one detection |
+
+  **What is not legal: defining `selection_discriminator` and leaving the condition not
+  referencing it.** It reads as a deliberate "available but not required" and it is a
+  `DanglingDetectionIssue` at HIGH severity — *"Rule defines detection that is not referenced
+  from condition"* — so `sigma check` reports `Check failure` and the rule fails this skill's own
+  Stage 6 gate. Verified: the same rule passes with 0 issues both with the flag selection deleted
+  and with `condition: all of selection_*`. Every selection you define, the condition references.
+
+  This interacts directly with the Stage 4 ledger: "the operator would use a flag" is an
+  `INFERRED` narrowing, and `INFERRED` conditions may not narrow the rule.
+
 - **Observable behaviors.** Threat reports are written in the language of outcomes, and
   detections need the language of telemetry. "Established persistence" is a conclusion,
   and the observable underneath it is a Run key value set, a scheduled task created, a
@@ -177,7 +278,9 @@ the analyst supplies data from a different source than the one originally cited,
 records what was actually used, not what was originally asked about.
 
 State the read-back in a few sentences before asking anything: what came in, which
-behaviors you extracted, which logsources they map to, and what you cannot infer. Give the
+behaviors you extracted, which logsources they map to, the default-state answer, and what you
+cannot infer. Where the input was documentation, the read-back also names the misuse being
+detected and the parameters you are treating as anchors. Give the
 analyst the chance to correct you before you have written a line of YAML. Running unattended,
 put the read-back at the top of the package summary instead, so a returning analyst can see
 what you understood the report to say before they read a single rule.
@@ -188,6 +291,15 @@ Ask only what the profile and the input cannot answer, and cap it at three quest
 practice this is usually the source URL for the `references` field, an ambiguity about
 which variant of a behavior to target, or whether a specific internal tool would collide
 with the detection.
+
+**Three is a ceiling, not a target, and it is also not permission to ask none.** Runs that work
+the stages one at a time reliably ask their questions; runs that go end to end in a single pass
+reliably skip them, which is a property of the run's momentum rather than of the input having
+become clearer. So make this an explicit checkpoint even mid-flow: name the ambiguities you
+found, and either ask them or state why each one is safe to default. Where the input is tool
+documentation with no adversarial framing supplied, that framing is a question you must ask
+rather than default, because inventing an adversarial use for a documented administrative tool
+is fabrication about the threat rather than about a field name.
 
 Where a question goes unanswered, proceed on a documented assumption rather than blocking,
 and record every assumption in the validation note so testing can confirm or correct it.
@@ -204,6 +316,28 @@ stand. This is the most consequential decision in the whole skill, and
   indicator matching rather than in a Sigma rule, because they will be dead within weeks.
   Argument patterns and parent-child relationships survive recompilation and renaming, and
   they are specific enough to tune. Record the choice with an `stp.N` tag.
+- **Lay the rule out in three layers, one selection each.** Decide the layers here, before any
+  YAML, because the abstraction level and the layout are the same decision seen from two sides:
+
+  | Layer | What it holds | Example |
+  |---|---|---|
+  | **Anchor** | The binary or process the behavior cannot happen without | `Image\|endswith: '\powershell.exe'`, plus its `OriginalFileName` |
+  | **Invariant** | The cmdlet, API or syntax the technique cannot function without | `CommandLine\|contains: 'Get-AppLockerPolicy'` |
+  | **Discriminator** | The attacker-controlled arguments that make it worth alerting on | the documented flags, with `\|windash` where the target is not Splunk |
+
+  Three named selections beat one merged block for a reason that shows up in month two rather
+  than on the page: **the analyst can suppress one layer without losing the others.** A single
+  fused selection forces a choice between the whole cmdlet and nothing, so the noisy flag takes
+  the useful invariant down with it. Keep them separate even when the condition is
+  `all of selection_*`, so that tuning has something to grip.
+
+  **Separate selections, all of them referenced by the condition.** Layering is not a way to
+  park a selection the rule does not use: an unreferenced identifier is a `DanglingDetectionIssue`
+  at HIGH severity and fails `sigma check`. Where a layer is genuinely absent — no discriminator
+  exists, or the default state puts the bare invocation in scope — the layer comes *out* of the
+  YAML and into the note, or becomes a sibling rule. Stage 1's default-state table has the two
+  legal shapes, and Stage 4 has the hunting-query fallback for a rule with no discriminator at
+  all.
 - **Prefer generic logsources.** `category: process_creation` with `product: windows`
   converts against Sysmon, native 4688 auditing, Defender XDR, and CrowdStrike.
   `service: sysmon` with `EventID: 1` binds the rule to one sensor.
@@ -363,43 +497,54 @@ Getting a tag right costs less than finding it wrong later, so check candidates 
 choosing them: `python3 <skill dir>/scripts/attack_check.py --lookup T1055` prints the
 technique's real name and its tactics in one line.
 
-Then the logic, in this order. The anchor first, meaning the narrowest condition that must
-be true, such as the binary or the API call. The discriminator second, meaning whatever
-makes it malicious rather than routine, such as the argument pattern or the parent process.
-The exclusions third, using `filter_main_*` for what is never malicious anywhere and
+Then the logic, in the layer order set at Stage 3. The **anchor** first, meaning the binary or
+API call the behavior cannot happen without. The **invariant** second, meaning the cmdlet, call
+or syntax the technique cannot function without. The **discriminator** third, meaning the
+attacker-controlled arguments or the parent process that make it malicious rather than routine.
+Then the exclusions, using `filter_main_*` for what is never malicious anywhere and
 `filter_optional_*` for what is only benign in some environments. The condition last, which
-is usually `all of selection_* and not 1 of filter_*`.
+is usually `all of selection_* and not 1 of filter_*`. Keep the layers in separate named
+selections, per Stage 3, so that a noisy discriminator can be suppressed without losing the
+invariant.
 
 If you cannot articulate a discriminator, you are about to ship a rule that matches every
 process creation for a given binary. Tag it `detection.threat-hunting`, set
-`level: informational`, and say plainly that it is a hunting query.
+`level: informational`, and say plainly that it is a hunting query. The same applies when the
+default-state answer from Stage 1 puts the no-arguments invocation in scope and there is
+therefore no flag you can require.
 
-Two habits worth applying, with the condition attached rather than as reflexes:
+### Stage 4c: the resilience gate
 
-- **Add `OriginalFileName` when the anchor is a known binary and the telemetry carries the
-  field**, because renaming `certutil.exe` defeats an `Image|endswith` rule and costs the
-  adversary nothing. It needs Sysmon 10 or later, or an EDR that surfaces the PE header:
-  **Windows Security 4688 does not carry it at all**, so on an estate collecting only the
-  Security channel the habit is dead and the renaming gap goes in the note instead of being
-  papered over with a field the index does not have. It does
-  nothing when the anchor is a path or a directory pattern, since there is no expected
-  original name to assert. Never invent the value; `sigma-spec.md` carries a table of the
-  common ones, and anything not on it needs checking against a real event or a SigmaHQ rule.
-  Be aware this habit and the Splunk grouping trap at Stage 6 pull against each other, since
-  `Image` OR `OriginalFileName` is exactly the OR-under-AND shape that backend mishandles.
-  Add the field, then read the converted query. If the OR comes out unbracketed there is no
-  in-rule fix for this pair, so make the choice deliberately and record it: split the
-  `OriginalFileName` branch into a sibling rule, or keep it and note that the deployed query
-  needs hand-bracketing. Restructuring the condition is not one of the options — it produces a
-  byte-identical query. Do not drop the field silently to make the conversion look tidy. Do not drop the field
-  silently to make the conversion look tidy.
-- **Use `|windash` on attacker-controlled command-line flags**, though not when the target
-  is Splunk. It is the right call for `-urlcache` or `-encode`, where the adversary chooses
-  the dash character, and it is wasted on a string the OS generates such as the `-s Schedule`
-  in a svchost parent command line. On the Splunk backend it also produces an unbracketed OR
-  that silently widens the rule, so write the dash variants as an explicit `contains` list
-  there instead, which matches identically and converts safely. `references/validation.md`
-  has the tested comparison.
+Two fields carry most of a Windows rule's resilience, and both were previously described here
+as habits. Testers found the predictable result: a run would identify the LDAP path as the
+strongest discriminator, state twice that `|windash` was needed, and then ship a rule with
+neither. A habit the model can silently decline is not a control.
+
+**So both are now mandatory decisions with a recorded outcome.** Not mandatory fields — the
+telemetry and the backend genuinely make each one wrong in specific, documented cases — but you
+may not leave either unanswered. Work the table, pick the outcome, write it in the note's
+resilience record. "Not considered" is not one of the outcomes.
+
+| Question | Answer | Outcome |
+|---|---|---|
+| **1. Is the anchor a known Windows binary in a `process_creation` rule?** | No — the anchor is a path, a directory pattern, a non-Windows binary, or a different logsource | `OriginalFileName` does not apply. Record *N/A, no expected original name to assert* |
+| | Yes, and the profile's telemetry carries the field (Sysmon 10+, or an EDR surfacing the PE header) | **Add it**, using a confirmed value from `sigma-spec.md`'s table. Then answer question 2 |
+| | Yes, but the estate collects only Windows Security 4688 | **4688 does not carry the field at all.** Omit it and record the renaming evasion gap in the note. Never paper over it with a field the index does not have |
+| | Yes, but the binary is not in `sigma-spec.md`'s table | Omit it and record the gap. **Never invent the value** — a fabricated `OriginalFileName` silently matches nothing forever |
+| **2. Was `OriginalFileName` added, and is the target Splunk?** | Not Splunk | Keep it. Nothing further |
+| | Splunk | `Image` OR `OriginalFileName` is the OR-under-AND shape that backend leaves unbracketed. **There is no in-rule fix.** Choose and record: split the `OriginalFileName` branch into a sibling rule, or keep it and note that the deployed query needs hand-bracketing. Restructuring the condition is not an option — it produces a byte-identical query. Do not drop the field silently to make the conversion look tidy |
+| **3. Does the rule match on command-line flags?** | No | `\|windash` does not apply. Record *N/A* |
+| | Yes, and the flags are attacker-chosen (`-urlcache`, `-encode`, `-Ldap`), target not Splunk | **Apply `\|windash`.** The adversary picks the dash character and all five variants work on Windows |
+| | Yes, but the flags are OS-generated, such as the `-s Schedule` in a svchost parent command line | Do not apply it. It turns one clause into five for no coverage at all |
+| | Yes, attacker-chosen, **target is Splunk** | Do not apply it there. Write the dash variants as an explicit `contains` list, which matches identically and converts safely. `references/validation.md` has the tested comparison |
+| | Yes, but the rule is not a Windows command line | Do not apply it. `\|windash` has no meaning outside Windows — on a Linux rule it expands `-d` into `/d`, which is a path |
+
+Two notes on the shape of this gate. It is a decision procedure rather than a rule of thumb
+because the two fields pull against each other and against the backend: adding
+`OriginalFileName` is the right call for renaming and the wrong call for Splunk grouping, and
+resolving that needs the converted query in front of you at Stage 6, not a preference here. And
+the recorded outcome is what makes the gate checkable — Stage 7 greps the note for it, so an
+unanswered question fails the delivery rather than passing quietly.
 
 Where several rules come from one report and describe one intrusion chain, link them with
 `related:` and `type: similar` so a reviewer can see they belong together.
@@ -416,8 +561,11 @@ validation. In summary, five questions:
 2. What legitimate activity looks identical? Where the profile names the culprit, encode it
    as a `filter_main_*` or `filter_optional_*` block rather than only writing a sentence in
    `falsepositives`, because a named filter survives into the query.
-3. What is the cheapest evasion? If the answer is "rename the file" or "use a forward
-   slash", fix it now, and write down the residual gaps you are not closing.
+3. What is the cheapest evasion? Work the five-item table in `references/rule-quality.md`
+   Step 5 — binary renaming, flag obfuscation, path variation, **default state**, equivalent
+   tooling — with an explicit answer to each rather than a general impression. If the answer is
+   "rename the file", "use a forward slash", or "leave the flags off", fix it now, and write
+   down the residual gaps you are not closing.
 4. Does the condition do what you think? Confirm the binding, that every defined identifier
    is referenced, and that no single selection matches essentially every event in the
    logsource.
@@ -431,6 +579,16 @@ One caveat on filters, because the instruction to encode exclusions as `filter_*
 `<never_fabricate>` pull against each other. **A speculative filter is worse than a documented
 tuning action.** A filter carrying a made-up value looks tested, ships into the query, and
 silently excludes nothing while the reviewer assumes it covers something.
+
+**A deleted filter still owes the analyst a tuning strategy, and the strategy is a pattern.**
+"Add a filter for admin accounts" is not useful; a named exclusion shape with the value openly
+left to them is: *"exclude accounts matching your service-account convention —
+`User|re: '^SVC_.*'` if yours follows that shape — after confirming it against a week of hits.
+This draft does not know your naming convention."* That invents nothing and hands over a
+professional tuning action. The line to hold is that **a pattern with the value openly blank
+belongs in the note, and a plausible concrete value belongs nowhere** — `^SVC_APP_.*` written as
+though it were this organization's convention is a fabrication in the same way a made-up
+hostname is, because the reviewer cannot tell it from a sourced one.
 
 **So every filter value carries its provenance in the file.** A plausible fabricated hostname
 is indistinguishable on the page from a correctly sourced one, so "did not invent a filter
@@ -490,6 +648,18 @@ This stage is the point of the skill. Follow `references/validation.md`.
    invalid. Without that distinction there is nothing separating "checked, found bad tags"
    from "never checked anything", and the instruction to disclose an unreachable taxonomy in
    those words is unexecutable.
+
+   **An HTTP 403 here is an environment problem, not a bug in the script.** pySigma's default
+   source is a `github.com/.../raw/...` URL that many corporate egress policies block, while
+   `raw.githubusercontent.com` serves the identical file — so a restricted network produces
+   `Failed to load MITRE ATT&CK data: HTTP Error 403` and exit 2 rather than any tag finding. Do
+   not retry it, and do not spend the run probing with `--lookup` or `--tactics` against a
+   network that is refusing you. Take the documented fallback: download
+   `enterprise-attack.json` on any machine that can reach it and pass
+   `--bundle /path/to/enterprise-attack.json`, which also primes pySigma's cache so `sigma check`'s
+   `attacktag` validator works offline for the rest of the session. If no bundle is available,
+   the tags are unverified: say so in the delivery in those words. `references/validation.md`
+   has the allowlist detail and the exit-code table.
 
    Anything the script reports as `[UNV]` is taxonomically valid with a semantic mapping it
    could not confirm. Name those in the delivery too. Do not round them to valid.
@@ -619,6 +789,14 @@ Then run the final check:
   defect the ledger exists to catch.
 - **Every ATT&CK tag has a behaviour-to-technique rationale line in the note.** A bare tag
   passed `attack_check.py` for existing, not for fitting.
+- **The note carries a resilience record answering all three Stage 4c questions**, each with one
+  of the documented outcomes. An unanswered question is a gate failure, not an omission — that
+  gate exists precisely because the previous wording let both fields be skipped silently.
+- **The note carries the Stage 1 default-state answer**, and where the default is in scope, no
+  flag selection is required by the condition. A rule that would miss the tool's bare
+  no-arguments invocation while claiming to detect the behavior is the failure this checks for.
+- **The detection block is laid out in anchor / invariant / discriminator selections**, or the
+  note says which layer is absent and what that costs.
 - Every converted query shipped as its own file, or the deployable artifact the profile asked
   for.
 - `attack_check.py` exited 0, or the delivery reports what its exit code actually meant:

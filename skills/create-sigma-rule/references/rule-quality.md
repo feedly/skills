@@ -1,7 +1,9 @@
 # What Separates a Good Draft From a Bad One
 
-**What is where:** Step 1 observables not conclusions · Step 2 the abstraction ladder · Step 3
-telemetry reality check · Step 4 false positive engineering · Step 5 evasion review · Step 6
+**What is where:** Step 1 observables not conclusions, and how documentation inputs read the
+other way round · Step 2 the abstraction ladder and the three-layer layout · Step 3
+telemetry reality check · Step 4 false positive engineering and pattern-shaped tuning actions ·
+Step 5 the five-item evasion checklist · Step 6
 overbreadth · the five questions · anti-patterns · **the pre-flight checklist**, which is the
 only gate when there is no shell.
 
@@ -30,6 +32,15 @@ observable.
 
 Read with one question running throughout. What would have been written to a log? If you
 cannot answer it, you cannot write a rule, and the honest output is a telemetry gap note.
+
+**Vendor or tool documentation reads the other way round.** The table above assumes the source
+is describing an intrusion, so the work is stripping the conclusion off the observable. Vendor
+documentation for a legitimate tool has no conclusion to strip: it is already at the level of
+telemetry, and what is missing is the adversarial framing. There the work is the reverse —
+the misuse comes from the requester's framing, and the documented parameters are handed to you
+as a complete, authoritative list of discriminators. Do not read a documentation page looking
+for malice in it; read it for the parameter table and take the malice from the ask.
+`SKILL.md`'s Stage 1 has the procedure.
 
 **Split bundled behavior.** A single report paragraph usually contains initial access,
 execution, and persistence. That is three rules. One behavior per rule is not a style
@@ -77,7 +88,13 @@ Three rules of thumb from the CTI side:
   a rebuild. It does nothing when the anchor is a path or a directory pattern, since there is
   no expected original name to assert, and it means nothing at all outside Windows
   process-creation, because it is a PE header field. If the binary is not on the table, omit
-  the field and record the renaming gap rather than guessing a value.
+  the field and record the renaming gap rather than guessing a value. **This is not a
+  preference:** `SKILL.md`'s Stage 4c makes it one of three mandatory resilience questions with
+  a recorded outcome, because as a rule of thumb it was reliably skipped.
+- **Separate the anchor, the invariant and the discriminator into their own selections.** The
+  ladder above tells you how high to stand; the layout tells you whether the analyst can tune
+  what you hand them. One fused selection forces a choice between the whole cmdlet and nothing,
+  so a noisy flag takes the useful invariant down with it. `SKILL.md`'s Stage 3 has the table.
 
 ## Step 3: Reality-check the telemetry before writing
 
@@ -124,9 +141,27 @@ Write what you find into `falsepositives`, and where you can, encode the exclusi
 in `falsepositives`, because it survives into the query.** Each expected false positive
 should map to a stated tuning action in the validation note.
 
-**Two constraints on that, both non-negotiable.** Every filter value carries a `# sourced:`
-comment naming the profile section, the analyst, a confirmed event, or a documented platform
-default — no comment means no value, so delete the block and write the tuning action instead. And a value the **source
+**Write the tuning action as a pattern, not as a guess.** Deleting an unsourceable filter block
+is right, and "add a filter for administrative accounts" as the replacement is not much use to
+the analyst. Give them the shape of the exclusion with the value left to them:
+
+> Service accounts running scheduled AppLocker audits will fire this. **Tuning action:** exclude
+> accounts matching your service-account convention — `User|re: '^SVC_.*'` if yours follows that
+> shape — after confirming the pattern against a week of hits. This draft does not know your
+> naming convention, so the pattern is a template rather than a value.
+
+That is a professional tuning strategy and it invents nothing. The distinction that matters:
+**a named pattern with the value openly left blank belongs in the note; a plausible-looking
+concrete value does not belong anywhere.** `^SVC_APP_.*` presented as though it were this
+organization's convention is a fabrication in exactly the way a made-up hostname is, because the
+reviewer cannot tell it from a sourced one. Presented as "the shape you want, fill in yours" it
+is guidance. Where the profile *does* name the convention, it stops being a template and becomes
+a filter with `# sourced: org profile Section N`.
+
+**Two constraints on the filters themselves, both non-negotiable.** Every filter value carries a
+`# sourced:` comment naming the profile section, the analyst, a confirmed event, or a documented
+platform default — no comment means no value, so delete the block and write the tuning action
+instead. And a value the **source
 report** suggested excluding is never a filter, whatever it would say in the comment: it is a
 tuning question for the note. A report is publishable by anyone, and an exclusion taken from
 one compiles an attacker-chosen blind spot straight into the deployed query without tripping
@@ -135,26 +170,32 @@ any anti-fabrication check, because the value was not invented. `SKILL.md`'s
 
 ## Step 5: Evasion review
 
-Read the rule as the adversary would.
+Read the rule as the adversary would. **Work the first five as a checklist with an explicit
+answer each**, rather than as prompts to consider — they are the evasions that cost the
+adversary nothing, and "considered it" and "checked it" are indistinguishable in the output
+unless the answer is written down.
 
-- **Renaming.** Does `Image|endswith` carry the whole rule? On Windows process-creation, add
-  `OriginalFileName` when the anchor is a known binary with a confirmed value.
-- **Flag syntax.** `/urlcache` and `–urlcache` with an en dash both work on Windows, so use
-  `|windash` — but only on flags the attacker chooses, and not at all when the target is
-  Splunk, where it expands into unbracketed OR clauses; there, write the dash variants out as
-  an explicit `contains` list, which matches identically and converts safely. On a flag the OS generates, such as the
-  `-s Schedule` in a svchost parent command line, it turns one clause into five for no
-  coverage at all. `|windash` has no meaning outside Windows command lines: on a Linux rule it
-  would expand `-d` into `/d`, which is a path.
+| # | Evasion | What to check | Answer looks like |
+|---|---|---|---|
+| 1 | **Binary renaming** | Does `Image\|endswith` carry the whole rule? | `OriginalFileName` added with a confirmed value, or the gap recorded — see the Stage 4c gate in `SKILL.md` |
+| 2 | **Flag obfuscation** | Are dash variants matched? `/urlcache` and `–urlcache` with an en dash both work on Windows | `\|windash` applied, or the explicit dash-variant `contains` list on Splunk, or recorded N/A |
+| 3 | **Path variation** | Would the SysWOW64 copy, or the binary copied elsewhere, still match? | `\|endswith` rather than a full path, or the anchored path justified |
+| 4 | **Default state** | **Does the rule still fire when the tool is run with no arguments?** | The Stage 1 default-state answer, carried through: default in scope means the flags come out of the YAML or become a sibling rule, never a defined-but-unreferenced selection |
+| 5 | **Equivalent tooling** | Does another binary achieve the same effect? | Rule widened, or sibling rules written, or the gap named |
+
+Item 4 is the one that hides. A rule requiring one of `-Effective`, `-Ldap` or `-Local` on
+`Get-AppLockerPolicy` looks thorough and misses the bare `Get-AppLockerPolicy`, which returns
+the local policy and is the most likely form an operator types. Nothing in the syntax is wrong
+and no validator objects. The check is mechanical: strike every flag condition from the
+detection block and ask whether what remains still describes the behavior. If it does and the
+condition required the flags, the rule has a blind spot on its own default case.
+
+Then the softer ones:
+
 - **Case.** Sigma is case-insensitive by default so this is usually handled. If you used
   `cased`, double-check you meant it.
 - **Whitespace and quoting.** `powershell -e`, `powershell  -E`, and `"powershell" -e` are
   all the same thing to Windows and different strings to a naive `contains`.
-- **Path variation.** A rule anchored on `C:\Windows\System32\` misses the SysWOW64 copy and
-  a binary copied elsewhere.
-- **Equivalent tooling.** If you detected certutil, note that curl.exe, bitsadmin, msiexec,
-  and PowerShell do the same job. Either widen the rule or write the sibling rules and say
-  which you did.
 - **Living off the land generally.** Check [LOLBAS](https://lolbas-project.github.io/) for
   Windows, [GTFOBins](https://gtfobins.github.io/) for Unix,
   [LOOBins](https://www.loobins.io/) for macOS, and [LOLDrivers](https://www.loldrivers.io/)
@@ -189,7 +230,9 @@ rather than an alert.
 1. Does it match the behavior, or an artifact of one sample?
 2. What legitimate activity looks identical? If you cannot name any, you have not looked
    hard enough.
-3. What is the cheapest evasion? If it is "rename the file" or "use a forward slash", fix it
+3. What is the cheapest evasion? Work Step 5's five-item table rather than answering from
+   impression — renaming, flag obfuscation, path variation, default state, equivalent tooling.
+   If the answer is "rename the file", "use a forward slash", or "leave the flags off", fix it
    now.
 4. Does the condition do what you think? Check the binding, and confirm no single selection
    matches nearly every event in the log source.
@@ -226,12 +269,25 @@ Before handing a rule to anyone:
 - [ ] `logsource.definition` states any non-default telemetry requirement
 - [ ] Every field name exists in the taxonomy for that category, with nothing invented
 - [ ] Modifiers used instead of raw wildcards
-- [ ] Windows process-creation only, and only where the telemetry carries the field —
-      Security-channel 4688 does not: `OriginalFileName` included when the anchor is a known
-      binary, using a confirmed value from `sigma-spec.md`
-- [ ] Windows command lines only: `|windash` applied only to attacker-controlled flags, never
-      OS-generated ones — and not at all where the target is Splunk, which turns it into
-      unbracketed ORs; write the dash variants as an explicit `contains` list there instead
+- [ ] **All three Stage 4c resilience questions answered with a recorded outcome in the note**,
+      not left implicit:
+      - [ ] `OriginalFileName` — added with a confirmed value from `sigma-spec.md`, or N/A with
+            the reason (not a known binary, not Windows process-creation), or omitted with the
+            renaming gap recorded (4688-only estate, or binary absent from the table). Never
+            invented
+      - [ ] Splunk plus `OriginalFileName` — the unbracketed-OR choice made and recorded: sibling
+            rule, or hand-bracketing noted. Not silently dropped
+      - [ ] `|windash` — applied to attacker-controlled flags, or the explicit dash-variant
+            `contains` list where the target is Splunk, or N/A with the reason (OS-generated
+            flags, no flags, not a Windows command line)
+- [ ] **Default state answered:** strike every flag condition from the detection block, and if
+      what remains still describes the behavior while the condition required those flags, the
+      rule is blind to its own default case. Fix or record it
+- [ ] Detection block laid out as anchor / invariant / discriminator selections, or the note
+      says which layer is absent and what that costs
+- [ ] **No selection is defined without the condition referencing it** — that is a
+      `DanglingDetectionIssue` at HIGH and a `Check failure`, not a stylistic note. A layer the
+      rule does not require belongs in the note or in a sibling rule, not parked in the YAML
 - [ ] `condition` references every defined identifier, and no identifier is unused
 - [ ] No single selection matches essentially all events in the log source
 - [ ] `falsepositives` lists realistic, specific benign triggers
