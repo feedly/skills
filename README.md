@@ -31,7 +31,7 @@ Alternatively, download a standalone `.skill` file from the
 if you'd rather install a single skill by hand than add the whole marketplace:
 
 - [intelligence-requirements-builder.skill](https://github.com/feedly/skills/releases/download/skills-latest/intelligence-requirements-builder.skill)
-- [cti-risk-delta.skill](https://github.com/feedly/skills/releases/download/skills-latest/cti-risk-delta.skill)
+- [cti-risk-reduction-report.skill](https://github.com/feedly/skills/releases/download/skills-latest/cti-risk-reduction-report.skill)
 - [create-sigma-rule.skill](https://github.com/feedly/skills/releases/download/skills-latest/create-sigma-rule.skill)
 
 ## What's included
@@ -42,7 +42,7 @@ Each skill is also published as a downloadable `.skill` bundle on every push to 
 | Skill | Description | Download |
 | --- | --- | --- |
 | [`intelligence-requirements-builder`](skills/intelligence-requirements-builder/) | Turns a vague stakeholder ask into a structured set of intelligence requirements (EEIs, collection guidance, success criteria, deliverables, criticality rating), output as markdown, Word, and CSV. | [.skill](https://github.com/feedly/skills/releases/download/skills-latest/intelligence-requirements-builder.skill) |
-| [`cti-risk-delta`](skills/cti-risk-delta/) | Rates a threat with OWASP before and after CTI action, with a financial exposure band sized to the organization. Output as markdown and Word. | [.skill](https://github.com/feedly/skills/releases/download/skills-latest/cti-risk-delta.skill) |
+| [`cti-risk-reduction-report`](skills/cti-risk-reduction-report/) | Rates a threat with OWASP before CTI action, after verified mitigations, and after dated commitments, with a financial exposure band sized to the organization. Output as markdown and Word. | [.skill](https://github.com/feedly/skills/releases/download/skills-latest/cti-risk-reduction-report.skill) |
 | [`create-sigma-rule`](skills/create-sigma-rule/) | Turns a threat report, advisory, malware write-up, or log sample into draft Sigma detection rules, checked with sigma-cli when a shell is available, plus a validation note. | [.skill](https://github.com/feedly/skills/releases/download/skills-latest/create-sigma-rule.skill) |
 
 ### Prompts
