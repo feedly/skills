@@ -34,10 +34,23 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ inputs.tag || 'skills-latest' }}
         run: |
-          gh release create "$TAG" dist/*.skill \
-            --repo "${{ github.repository }}" \
-            --title "$TAG" \
-            --notes "Bundled .skill files for each skill in feedly-cti-skills, built from $(git rev-parse --short HEAD)." \
-            || gh release upload "$TAG" dist/*.skill \
+          NOTES="Bundled .skill files for each skill in feedly-cti-skills, built from $(git rev-parse --short HEAD)."
+
+          # Move the tag to the current commit so GitHub's auto-generated
+          # "Source code" archives match the bundled .skill files.
+          git tag -f "$TAG"
+          git push -f origin "refs/tags/$TAG"
+
+          if gh release view "$TAG" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/*.skill \
               --repo "${{ github.repository }}" \
               --clobber
+            gh release edit "$TAG" \
+              --repo "${{ github.repository }}" \
+              --notes "$NOTES"
+          else
+            gh release create "$TAG" dist/*.skill \
+              --repo "${{ github.repository }}" \
+              --title "$TAG" \
+              --notes "$NOTES"
+          fi
