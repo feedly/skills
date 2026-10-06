@@ -33,6 +33,7 @@ if you'd rather install a single skill by hand than add the whole marketplace:
 - [intelligence-requirements-builder.skill](https://github.com/feedly/skills/releases/download/skills-latest/intelligence-requirements-builder.skill)
 - [cti-risk-reduction-report.skill](https://github.com/feedly/skills/releases/download/skills-latest/cti-risk-reduction-report.skill)
 - [create-sigma-rule.skill](https://github.com/feedly/skills/releases/download/skills-latest/create-sigma-rule.skill)
+- [map-attack-techniques.skill](https://github.com/feedly/skills/releases/download/skills-latest/map-attack-techniques.skill)
 
 ## What's included
 
@@ -44,6 +45,7 @@ Each skill is also published as a downloadable `.skill` bundle on every push to 
 | [`intelligence-requirements-builder`](skills/intelligence-requirements-builder/) | Turns a vague stakeholder ask into a structured set of intelligence requirements (EEIs, collection guidance, success criteria, deliverables, criticality rating), output as markdown, Word, and CSV. | [.skill](https://github.com/feedly/skills/releases/download/skills-latest/intelligence-requirements-builder.skill) |
 | [`cti-risk-reduction-report`](skills/cti-risk-reduction-report/) | Rates a threat with OWASP before CTI action, after verified mitigations, and after dated commitments, with a financial exposure band sized to the organization. Output as markdown and Word. | [.skill](https://github.com/feedly/skills/releases/download/skills-latest/cti-risk-reduction-report.skill) |
 | [`create-sigma-rule`](skills/create-sigma-rule/) | Turns a threat report, advisory, malware write-up, or log sample into draft Sigma detection rules, checked with sigma-cli when a shell is available, plus a validation note. | [.skill](https://github.com/feedly/skills/releases/download/skills-latest/create-sigma-rule.skill) |
+| [`map-attack-techniques`](skills/map-attack-techniques/) | Maps a threat report's narrative behavior to current MITRE ATT&CK Enterprise and ICS techniques, with verbatim evidence, occurrence status, and confidence for each mapping. Output as markdown, Word, ATT&CK Navigator layers, and optional STIX; with the Feedly MCP server connected, can also compare the mapping with the actor's Feedly Threat Graph profile. | [.skill](https://github.com/feedly/skills/releases/download/skills-latest/map-attack-techniques.skill) |
 
 ### Prompts
 
