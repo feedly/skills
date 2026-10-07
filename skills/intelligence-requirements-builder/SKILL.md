@@ -113,13 +113,14 @@ Keep the prose tight. Collection guidance and success criteria should be one sho
 
 - One row per requirement, exactly these 14 columns, in this order: `IR_ID, Type, Requirement, Stakeholder, Decision_Supported, Criticality, Status, EEIs, Intelligence_Deliverable, Delivery_Cadence, Success_Criteria, Owner, Date_Created, Review_Date`.
 - Keep cell contents condensed. The CSV is deliberately a simplified view; full collection guidance, matrix scores, and assumptions live in the markdown and Word records only.
-- Separate multiple values within a cell using semicolons (notably EEIs), never commas.
+- Serialize the file as UTF-8, RFC 4180-compatible CSV. Wrap any field containing a comma, double quote, or line break in double quotes, and escape an embedded double quote by doubling it. Keep each requirement on one physical row; do not put line breaks inside fields.
+- Separate list items within a cell using semicolons (notably EEIs). Commas are allowed in normal prose only when the field is quoted correctly; never use commas as list separators inside a cell.
 - Use controlled vocabulary: Type is GIR, SIR, or PIR; Criticality is Critical, High, Medium, or Low; Status is Proposed, Active, or Retired; Delivery_Cadence is One-time, Ad hoc, Weekly, Monthly, Quarterly, or Continuous.
 - Always set Status to Proposed and leave Owner blank. Approving requirements and assigning analysts are the team's decisions, not the skill's.
 - Candidate requirements never enter the CSV; only fully enriched requirements get a row.
 - Use ISO 8601 dates (YYYY-MM-DD). For enduring requirements, Review_Date is the revalidation date; for PIRs, it is the expiry date tied to the decision.
 
-Use requirement IDs in the format `IR-YYYY-NNN` for enduring requirements and `PIR-YYYY-NNN` for priority requirements, and keep IDs identical across all three files so they stay traceable to each other. When one ask covers multiple questions, all IDs still belong to the same set and must be unique across it; group each question's IDs in a contiguous run (for example IR-2026-101 to 104 for the first question, IR-2026-111 to 113 for the second) so a reader can tell at a glance which question an ID came from without needing separate files.
+Use requirement IDs in the format `IR-YYYY-NNN` for enduring requirements and `PIR-YYYY-NNN` for priority requirements, and keep IDs identical across all three files so they stay traceable to each other. If the user provides an existing requirements list, inspect IDs with the same prefix and year, start after the highest number, and never reuse or renumber an existing ID. If no existing list is available, assign sequential provisional IDs and record that assumption in the markdown and Word files so the receiving team can reconcile them before activation. When one ask covers multiple questions, all IDs still belong to the same set and must be unique across it; group each question's IDs in a contiguous run (for example IR-2026-101 to 104 for the first question, IR-2026-111 to 113 for the second) so a reader can tell at a glance which question an ID came from without needing separate files.
 
 ### Optional Stage 7: Feedly collection handoff
 
