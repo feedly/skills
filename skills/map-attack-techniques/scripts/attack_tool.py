@@ -5,7 +5,9 @@ attack_tool.py - helper for the map-attack-techniques skill (v2).
 Subcommands
   version [--history-version X.Y]
         Resolve the latest Enterprise, ICS and Mobile ATT&CK versions from the
-        attack-stix-data collection index, plus the current Navigator release.
+        attack-stix-data collection index, plus the current Navigator release
+        and the newest published Navigator layer format (read from the
+        Navigator repo's layers/README.md), next to the format this tool writes.
         With --history-version (the version read from a LIVE fetch of
         https://attack.mitre.org/resources/versions/), also prints the
         version-disagreement decision the skill must follow.
@@ -23,7 +25,9 @@ Subcommands
         Build one ATT&CK Navigator layer (format 4.5) for one domain from a
         mappings file. Validates IDs, names and tactics against the pinned
         release, checks quotes and source-ID reconciliation, and prints a
-        named check report. Writes nothing if any check FAILS.
+        named check report. Writes nothing if any check FAILS. Also reports
+        whether a newer layer format than 4.5 is published; that never fails
+        the build and never changes what is written.
   validate LAYER
         Re-check a layer file and print the same named check report.
   build-comparison-layer MAPPINGS FEEDLY_CONTEXT -o OUT [--domain D]
@@ -35,6 +39,13 @@ Subcommands
   export-stix MAPPINGS -o OUT
         Optional STIX 2.1 bundle: one note per mapping (all quotes, confidence,
         occurrence) referencing the ATT&CK attack-pattern objects.
+  layer-format-diff [--from X.Y] [--to X.Y] [--json]
+        Read-only. Fetch two published Navigator layer format specs (default:
+        the format this tool writes, and the newest published), compare their
+        property tables, and classify each change as affecting the fields this
+        tool writes or validates, or not. Also lists every line in this skill
+        that names the current format, so a reviewed update knows what to edit.
+        It never changes this tool or any layer.
 
 Common options
   --attack-version X.Y   Pin a release instead of the latest in the index.
@@ -64,7 +75,8 @@ import uuid
 INDEX_URL = "https://raw.githubusercontent.com/mitre-attack/attack-stix-data/master/index.json"
 NAV_PKG_URL = "https://raw.githubusercontent.com/mitre-attack/attack-navigator/master/nav-app/package.json"
 NAV_FALLBACK_VERSION = "5.3.2"  # latest known when this helper was written
-LAYER_FORMAT = "4.5"
+NAV_LAYERS_README_URL = "https://raw.githubusercontent.com/mitre-attack/attack-navigator/master/layers/README.md"
+LAYER_FORMAT = "4.5"  # the format this tool writes and validates; bumping it is a separate change
 CACHE_DIR = os.path.expanduser("~/.cache/map-attack-techniques")
 
 # key -> (collection name in index, Navigator domain, kill_chain_name)
@@ -164,6 +176,183 @@ def navigator_version():
         return json.loads(_get(NAV_PKG_URL, timeout=30))["version"], "github package.json"
     except Exception:
         return NAV_FALLBACK_VERSION, "fallback (could not reach GitHub)"
+
+
+_LAYER_SPEC_RE = re.compile(r"spec/v(\d+(?:\.\d+)+)/layerformat\.md")
+
+
+def latest_layer_format():
+    """Newest published Navigator layer format, read from the README in the Navigator
+    repo's layers/ folder, which links the latest spec as spec/vX.Y/layerformat.md.
+    Returns (version or None, note). Never raises."""
+    try:
+        text = _get(NAV_LAYERS_README_URL, timeout=30).decode("utf-8", errors="replace")
+    except Exception as e:
+        return None, f"could not read the Navigator layers README ({e.__class__.__name__})"
+    found = _LAYER_SPEC_RE.findall(text)
+    if not found:
+        return None, "no spec/vX.Y/layerformat.md link found in the Navigator layers README"
+    return max(found, key=_vtuple), "Navigator layers/README.md"
+
+
+NAV_CHANGELOG_URL = "https://raw.githubusercontent.com/mitre-attack/attack-navigator/master/CHANGELOG.md"
+NAV_SPEC_URL = "https://raw.githubusercontent.com/mitre-attack/attack-navigator/master/layers/spec/v{v}/layerformat.md"
+
+# Fields this tool writes (build_layer, build_comparison_layer) or checks (structure_errors),
+# per spec object. A spec change to one of these needs a code change before LAYER_FORMAT moves.
+WRITTEN_FIELDS = {
+    "Layer": {"name", "versions", "domain", "description", "sorting", "layout", "hideDisabled", "techniques",
+              "gradient", "legendItems", "showTacticRowBackground", "tacticRowBackground",
+              "selectTechniquesAcrossTactics", "selectSubtechniquesWithParent", "selectVisibleTechniques",
+              "metadata", "links"},
+    "Version": {"attack", "navigator", "layer"},
+    "Technique": {"techniqueID", "tactic", "comment", "enabled", "score", "color", "metadata", "links",
+                  "showSubtechniques"},
+    "Gradient": {"colors", "minValue", "maxValue"},
+    "LegendItem": {"label", "color"},
+    "Metadata": {"name", "value"},
+    "Link": {"label", "url"},
+    "Divider": {"divider"},
+    "Layout": {"layout", "showID", "showName", "showAggregateScores", "countUnscored", "aggregateFunction",
+               "expandedSubtechniques"},
+}
+
+
+def parse_layer_spec(text):
+    """Property tables of a layerformat.md, as {object: {field: {type, required, default, description}}}.
+    The top-level 'Property Table' is the 'Layer' object."""
+    objs, cur = {}, None
+    for line in text.splitlines():
+        h = re.match(r"^##\s+(.*)$", line)
+        if h:
+            title = h.group(1).strip()
+            if title.lower().startswith("property table"):
+                cur = "Layer"
+            else:
+                m = re.match(r"^(\w+)\s+Object\s+propert", title, re.I)
+                cur = m.group(1) if m else None
+            if cur:
+                objs.setdefault(cur, {})
+            continue
+        if cur and line.startswith("|"):
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if len(cells) < 4 or cells[0].lower() == "name" or set(cells[0]) <= set(":- "):
+                continue
+            objs[cur][cells[0]] = {"type": cells[1], "required": cells[2].lower().startswith("y"),
+                                   "default": cells[3], "description": " ".join(cells[4:]).strip()}
+    intro = next((l.strip() for l in text.splitlines() if l.startswith("This document describes")), "")
+    return objs, intro
+
+
+def changelog_entries(fmt):
+    """Navigator CHANGELOG.md lines announcing layer format `fmt`, with the release heading above each.
+    Returns (list of str, note)."""
+    try:
+        text = _get(NAV_CHANGELOG_URL, timeout=30).decode("utf-8", errors="replace")
+    except Exception as e:
+        return [], f"Navigator CHANGELOG.md NOT CHECKED ({e.__class__.__name__})"
+    pat = re.compile(r"layer\s+file\s+format.{0,40}?(?:version\s+|v)" + re.escape(fmt) + r"(?![\d])", re.I)
+    out, release = [], None
+    for line in text.splitlines():
+        if line.startswith("# "):
+            release = line[2:].strip()
+        elif pat.search(line):
+            out.append(f"[{release}] {line.strip()}")
+    return out, ("Navigator CHANGELOG.md" if out else f"no entry announcing layer format {fmt} in CHANGELOG.md")
+
+
+def _norm_cell(x):
+    return re.sub(r"\s+", " ", (x or "").strip().lower())
+
+
+def diff_layer_specs(old, new, nav_ver=None):
+    """Compare two parsed specs. Each change: {object, field, change, detail, affects_this_tool, version_bump}.
+    Version.layer and Version.navigator constraint changes are the expected version bump: they are
+    flagged separately and affect this tool only if the Navigator release it writes is below the new minimum."""
+    changes = []
+    for obj in sorted(set(old) | set(new)):
+        o, n = old.get(obj), new.get(obj)
+        written = WRITTEN_FIELDS.get(obj, set())
+        if o is None:
+            changes.append({"object": obj, "field": "*", "change": "object added",
+                            "detail": f"new object with fields {', '.join(n)}", "affects_this_tool": False})
+            continue
+        if n is None:
+            changes.append({"object": obj, "field": "*", "change": "object removed", "detail": "",
+                            "affects_this_tool": bool(written)})
+            continue
+        for f in sorted(set(o) | set(n)):
+            a, b = o.get(f), n.get(f)
+            if a is None:
+                changes.append({"object": obj, "field": f, "change": "field added",
+                                "detail": f"{b['type']}, {'required' if b['required'] else 'optional'}, "
+                                          f"default {b['default'] or 'none'}",
+                                "affects_this_tool": b["required"]})
+            elif b is None:
+                changes.append({"object": obj, "field": f, "change": "field removed", "detail": "",
+                                "affects_this_tool": f in written})
+            else:
+                for k in ("type", "required", "default", "description"):
+                    if _norm_cell(str(a[k])) != _norm_cell(str(b[k])):
+                        ours = f in written
+                        bump = obj == "Version" and f in ("layer", "navigator") and k == "description"
+                        if bump:
+                            affects = False
+                            mins = re.findall(r'"(\d+(?:\.\d+)+)"', b[k])
+                            if f == "navigator" and mins and nav_ver and _vtuple(nav_ver) < _vtuple(mins[0]):
+                                affects = True
+                        else:
+                            affects = ours and k in ("type", "required") or \
+                                (ours and k == "description" and _enum_values(a[k]) != _enum_values(b[k]))
+                        changes.append({"object": obj, "field": f, "change": f"{k} changed",
+                                        "detail": f"{a[k]!s} -> {b[k]!s}" if k != "description"
+                                        else f"was: {a[k]} | now: {b[k]}",
+                                        "affects_this_tool": bool(affects), "version_bump": bump})
+    for c in changes:
+        c.setdefault("version_bump", False)
+    return changes
+
+
+def _enum_values(desc):
+    """Quoted allowed values in a description ('Either "side", "flat" or "mini"'), for spotting enum changes."""
+    return sorted(set(re.findall(r'"([^"]+)"', desc or "")))
+
+
+def format_mentions(fmt):
+    """Lines in this skill's files that name the format, for a reviewed update to edit."""
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    pat = re.compile(r"(?<![\d.])" + re.escape(fmt) + r"(?![\d])")
+    out = []
+    for d, _, files in os.walk(root):
+        for fn in sorted(files):
+            if not fn.endswith((".md", ".py")):
+                continue
+            path = os.path.join(d, fn)
+            with open(path, encoding="utf-8", errors="replace") as f:
+                for i, line in enumerate(f, 1):
+                    if pat.search(line):
+                        out.append(f"{os.path.relpath(path, root)}:{i}: {line.strip()[:120]}")
+    return out
+
+
+def layer_format_check(offline=False):
+    """Return (check row, warning or None, newest version or None).
+    Status is PASS or NOT CHECKED, never FAIL: a newer published format does not stop
+    a build, because the Navigator upgrades older layers on import."""
+    name = f"Layer format currency (writes {LAYER_FORMAT})"
+    if offline:
+        return (name, NC, "offline mode"), None, None
+    newest, note = latest_layer_format()
+    if newest is None:
+        return (name, NC, note), None, None
+    if _vtuple(newest) > _vtuple(LAYER_FORMAT):
+        warn = (f"Navigator layer format {newest} is published; this skill writes {LAYER_FORMAT}. "
+                f"The layer still imports (the Navigator upgrades it). Run layer-format-diff to see "
+                f"what changed (SKILL.md Step 9).")
+        return (name, NC, f"newest published is {newest}; layer not checked against it"), warn, newest
+    if _vtuple(newest) < _vtuple(LAYER_FORMAT):
+        return (name, NC, f"README links {newest}, older than {LAYER_FORMAT}; lookup may be stale"), None, newest
+    return (name, PASS, f"{LAYER_FORMAT} is the newest published"), None, newest
 
 
 def version_decision(index_ver, history_ver):
@@ -1138,6 +1327,10 @@ def main():
     cp.add_argument("feedly_context")
     cp.add_argument("-o", "--out", required=True)
     cp.add_argument("--domain", choices=DOMAINS, default=None)
+    fp = sub.add_parser("layer-format-diff")
+    fp.add_argument("--from", dest="from_fmt", default=None, help=f"default: {LAYER_FORMAT}, the format this tool writes")
+    fp.add_argument("--to", dest="to_fmt", default=None, help="default: the newest published format")
+    fp.add_argument("--json", action="store_true", help="print JSON instead of the text report")
     sp = sub.add_parser("export-stix")
     sp.add_argument("mappings")
     sp.add_argument("-o", "--out", required=True)
@@ -1152,12 +1345,83 @@ def main():
         idx = load_index()
         out = {d: resolve_version(d, args.attack_version, idx) for d in DOMAINS}
         nv, nsrc = navigator_version()
+        lf_row, lf_warn, newest_lf = layer_format_check()
         res = {"collection_index": out, "navigator": {"version": nv, "source": nsrc},
                "layer_format": LAYER_FORMAT,
+               "layer_format_newest_published": {
+                   "version": newest_lf, "source": NAV_LAYERS_README_URL, "status": lf_row[1],
+                   "note": lf_row[2],
+                   **({"warning": lf_warn} if lf_warn else {})},
                "checked": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"),
                "index_url": INDEX_URL,
                "decision": {d: version_decision(out[d]["version"], args.history_version) for d in DOMAINS}}
         print(json.dumps(res, indent=2))
+        return
+
+    if args.cmd == "layer-format-diff":
+        if args.offline:
+            raise SystemExit("layer-format-diff needs network access")
+        frm = args.from_fmt or LAYER_FORMAT
+        to = args.to_fmt
+        if not to:
+            to, note = latest_layer_format()
+            if to is None:
+                raise SystemExit(f"Newest layer format NOT CHECKED: {note}. Pass --to X.Y.")
+        specs = {}
+        for v in (frm, to):
+            try:
+                specs[v] = parse_layer_spec(_get(NAV_SPEC_URL.format(v=v), timeout=30).decode("utf-8", "replace"))
+            except Exception as e:
+                raise SystemExit(f"Could not read the {v} layer format spec ({e.__class__.__name__}): "
+                                 f"{NAV_SPEC_URL.format(v=v)}")
+            if not specs[v][0]:
+                raise SystemExit(f"No property tables found in the {v} spec; the spec layout has changed. "
+                                 f"Read it by hand: {NAV_SPEC_URL.format(v=v)}")
+        nav_ver = navigator_version()[0]
+        changes = diff_layer_specs(specs[frm][0], specs[to][0], nav_ver) if frm != to else []
+        affecting = [c for c in changes if c["affects_this_tool"]]
+        if frm == to:
+            verdict = f"No change: {frm} is the format this tool writes."
+        elif affecting:
+            verdict = (f"Code changes needed before writing {to}: {len(affecting)} change(s) touch fields this "
+                       f"tool writes or validates. Draft the update, test it, and send it for review.")
+        else:
+            verdict = (f"No field this tool writes is affected; only the expected version constraints and "
+                       f"optional or descriptive changes. A reviewed update can bump LAYER_FORMAT to {to}, edit "
+                       f"the mentions below, and re-run the tests.")
+        res = {"from": frm, "to": to, "writes": LAYER_FORMAT, "navigator_written": nav_ver,
+               "spec_urls": {v: NAV_SPEC_URL.format(v=v) for v in (frm, to)},
+               "intro": {frm: specs[frm][1], to: specs[to][1]},
+               "changes": changes, "affecting_this_tool": len(affecting),
+               "changelog": changelog_entries(to)[0] if frm != to else [],
+               "mentions_of_current_format": format_mentions(LAYER_FORMAT), "verdict": verdict,
+               "check": "Spec property tables compared. Prose outside the tables, the Example section and the "
+                        "Navigator's import code were NOT CHECKED: read the intro lines and the spec."}
+        if args.json:
+            print(json.dumps(res, indent=2))
+            return
+        print(f"== layer-format-diff {frm} -> {to} (this tool writes {LAYER_FORMAT}) ==")
+        for v in (frm, to):
+            print(f"  {v} spec: {res['spec_urls'][v]}")
+        if specs[frm][1] != specs[to][1]:
+            print(f"  Intro {frm}: {specs[frm][1]}")
+            print(f"  Intro {to}: {specs[to][1]}")
+        if frm != to:
+            cl, cl_note = changelog_entries(to)
+            print(f"  Changelog ({cl_note}):" if cl else f"  Changelog: {cl_note}")
+            for line in cl:
+                print("    " + line[:400])
+        if not changes:
+            print("  No property table changes.")
+        for c in changes:
+            flag = "AFFECTS THIS TOOL" if c["affects_this_tool"] else \
+                "version bump (expected)" if c["version_bump"] else "no effect on this tool"
+            print(f"  [{flag}] {c['object']}.{c['field']}: {c['change']}" + (f" ({c['detail']})" if c["detail"] else ""))
+        print(f"  Mentions of {LAYER_FORMAT} in this skill ({len(res['mentions_of_current_format'])}):")
+        for m in res["mentions_of_current_format"]:
+            print("    " + m)
+        print("  VERDICT: " + verdict)
+        print("  " + res["check"])
         return
 
     if args.cmd in ("tactics", "lookup"):
@@ -1221,6 +1485,9 @@ def main():
         spec["_multi_domain"] = len(doms) > 1
         if args.offline and not args.attack_version:
             raise SystemExit("--offline build needs --attack-version (the version the analyst confirmed)")
+        lf_row, lf_warn, _ = layer_format_check(args.offline)
+        if lf_warn:
+            print("WARNING: " + lf_warn.split(". ")[0] + ".", file=sys.stderr)
         b, info, why = load_bundle(args, domain)
         a = Attack(b, domain) if b else None
         nv = navigator_version()[0] if not args.offline else NAV_FALLBACK_VERSION
@@ -1238,9 +1505,12 @@ def main():
              (FAIL if content_errs else PASS) if a else NC, "" if a else why),
             ("Quote verification against source text", q_st, q_note),
             ("Source ID reconciliation", r_st, r_note),
+            lf_row,
             ("Full Navigator layer schema", NC, "this tool does not run it"),
             ("Navigator application import", NC, "import the file in the Navigator to confirm"),
         ]
+        if lf_warn:
+            warnings.append(lf_warn)
         if q_st == FAIL:
             errors += [f"mapping {d['mapping']} quote {d['quote']}: " +
                        (d["why"] or f"not found verbatim in source {d['source']}")

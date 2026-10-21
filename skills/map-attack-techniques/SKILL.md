@@ -29,7 +29,8 @@ companion files. They never change the mapping.
 **Package contents.**
 
 - `scripts/attack_tool.py`: version check, ID lookup, quote check, layer
-  build and validation, Feedly comparison layer, STIX export. Standard library only. Commands below
+  build and validation, Feedly comparison layer, STIX export, layer format
+  comparison. Standard library only. Commands below
   give its path relative to this skill's folder: call it by its full path
   and keep your working files in your own working directory.
 - `references/output-format.md`: templates for sections 0 to 5, the
@@ -66,7 +67,8 @@ actor, malware or campaign."
 ## Workflow
 
 Eight steps, Step 0 to Step 7, in order, plus the optional Step 8 when the
-Feedly MCP server is connected. Stop and wait for the user at the
+Feedly MCP server is connected, and Step 9 when the Navigator has published
+a newer layer format than the one this skill writes. Stop and wait for the user at the
 end of Step 0 (only if source material is missing) and Step 1. Show no
 mappings before Step 3 is finished.
 
@@ -204,7 +206,9 @@ Do this before any mapping. Use two sources, because they fail differently.
 1. Run `python3 scripts/attack_tool.py version`. It reads the
    attack-stix-data collection index (the machine source that tooling,
    including the Navigator, downloads from) for Enterprise, ICS and Mobile,
-   and reports the current Navigator release. Without a shell, fetch
+   and reports the current Navigator release. It also reports the newest
+   published Navigator layer format next to the 4.5 this skill writes (see
+   "Layer format currency" in Step 4). Without a shell, fetch
    https://raw.githubusercontent.com/mitre-attack/attack-stix-data/master/index.json
    and read the highest version of each collection.
 2. Fetch https://attack.mitre.org/resources/versions/ itself with a live
@@ -281,6 +285,7 @@ writes nothing if any check FAILS:
 | ATT&CK content | ID, name and tactic match the pinned STIX bundle for that domain; NOT CHECKED offline |
 | Quote verification | each quote is at least four words and appears word for word, on word boundaries, in the saved source text; NOT CHECKED without text |
 | Source ID reconciliation | every cited ID has exactly one disposition, worded as a section 2 status |
+| Layer format currency | PASS when 4.5 is the newest layer format the Navigator repo publishes; NOT CHECKED, with a one-line warning, when a newer format is published (Step 9 then runs after delivery); NOT CHECKED when offline or the lookup fails. Never FAILS and never changes what is written |
 | Full Navigator layer schema | always NOT CHECKED by this tool |
 | Navigator application import | always NOT CHECKED; the user confirms by importing |
 
@@ -350,9 +355,14 @@ Before sending anything, check:
   use, BLUF first, estimative language matching the confidence levels).
 - Quoted text is untouched (see the em dash rule).
 
-Send the files the user chose. Then, in no more than six lines:
+Send the files the user chose. Then, in no more than seven lines:
 
 - The ATT&CK version or versions mapped and the verification status.
+- "Layer format 4.5 (newest published: X)", with X from the Layer format
+  currency check, or "not checked" if the lookup did not run. If X is
+  newer than 4.5, add that the layers still import (the Navigator upgrades
+  them) and that Step 9 follows: a comparison of the two formats and a
+  drafted skill update for review.
 - Counts: direct mappings by confidence and by occurrence status;
   behaviours not mapped; and, per layer, coloured entries and parent
   display entries.
@@ -478,6 +488,73 @@ need the script NOT CHECKED.
 entities and window queried; counts per group per entity; the checks run
 on the comparison layer; and a reminder that Feedly profiles are built
 from aggregated reporting, change over time, and are dated in the file.
+
+### Step 9. Draft a layer format update (only when a newer format is published)
+
+Run this step when the Layer format currency check in Step 2 or Step 4
+reports a newer published format, or when the user asks to check the
+layer format. It runs after Step 7 has delivered the files (and after
+Step 8 if that runs in the same turn), never before. It never changes this
+run's layers: they stay in the format the skill writes, and the Navigator
+upgrades them on import. Nothing it drafts takes effect until the user
+reviews and saves it.
+
+**9.1 Compare the formats.** Run
+`python3 scripts/attack_tool.py layer-format-diff`. By default it compares
+the format the skill writes with the newest published one. It fetches both
+specs from the Navigator repo, compares their property tables, quotes the
+Navigator changelog entry for the new format, and puts each change in one
+of three classes:
+
+| Class | Meaning |
+|---|---|
+| AFFECTS THIS TOOL | A field the skill writes or validates was removed, retyped, made required, or had its allowed values changed; a new required field was added; or the Navigator release the skill writes is below the new minimum |
+| version bump (expected) | The `versions.layer` and `versions.navigator` constraints moved, as they do in every release |
+| no effect on this tool | An optional field was added, or a description changed with no effect on what the skill writes |
+
+It also lists every line in the skill that names the current format, and
+prints a verdict. The script compares tables only. Read the intro lines and
+changelog entry it prints, and skim the new spec, for changes described in
+prose. Without a shell, open both specs at
+`https://raw.githubusercontent.com/mitre-attack/attack-navigator/master/layers/spec/vX.Y/layerformat.md`,
+compare the tables by hand, report what you found, and stop: do not draft
+a script change you cannot test.
+
+**9.2 Report.** In no more than four lines: the two formats compared, the
+count of changes in each class, the changelog's own words on backwards
+compatibility (if it has any), and the verdict. Say again that this run's
+layers are unchanged.
+
+**9.3 Draft the update.** Work in a copy of the skill folder in your
+working directory, never in the installed skill. Then:
+
+- Set `LAYER_FORMAT` in `scripts/attack_tool.py` to the new format, and edit
+  every line the diff listed under "Mentions" (SKILL.md, the references and
+  the script).
+- For each AFFECTS THIS TOOL change, update the code that writes or checks
+  that field: `build_layer`, `build_comparison_layer`, `structure_errors`
+  and `WRITTEN_FIELDS`, plus `references/layer-rules.md` for layers built by
+  hand.
+- If the Navigator release the skill writes is below the new minimum,
+  update `NAV_FALLBACK_VERSION` to a release that meets it.
+- Do not start writing new optional fields. List them in the summary so the
+  user can ask for any of them.
+
+**9.4 Test the draft.** Using the draft script, not the installed one:
+compile it; run `build-layer` and `validate` on this run's `mappings.json`
+to a scratch file name; confirm the scratch layer's `versions.layer` is the
+new format; and run `layer-format-diff` again, which must now report no
+change. Report the check statuses exactly as printed. Navigator import is
+still NOT CHECKED: give the user the scratch layer and ask them to import it
+before saving the update. If any test fails, fix the draft or report the
+failure; never send an untested draft as ready.
+
+**9.5 Send it for review.** Propose the updated SKILL.md with the skill
+proposal tool if the session has one. Also deliver the whole updated skill
+folder as a `.skill` package (a zip of the folder), because a proposal may
+carry only SKILL.md and the script change would be lost. Say plainly that
+the skill keeps writing the old format until the user saves the proposal or
+uploads the package.
 
 ## Decision rules
 
