@@ -26,7 +26,7 @@ report.
 
 **Version used for this mapping:** [domain(s), version and release date]
 **Verification status:** [Verified against both sources / Sources disagree, see note / History page NOT CHECKED / NOT VERIFIED]
-**Navigator:** layer format 4.5, built for Navigator [version]
+**Navigator:** layer format 4.5 (newest published: [X / not checked]), built for Navigator [version]
 **Source publication date(s):** [date per source; recorded separately from the ATT&CK version]
 **Source reliability (optional):** [Admiralty grade, for example B2, only when the user gives one; otherwise leave this line out. Also set `sources[].reliability` so the layer carries it.]
 
@@ -39,6 +39,7 @@ report.
 | ATT&CK content against the pinned bundle | PASS / FAIL / NOT CHECKED |
 | Quote verification against source text | PASS / FAIL / NOT CHECKED |
 | Source ID reconciliation | PASS / FAIL / NOT APPLICABLE |
+| Layer format currency (writes 4.5) | PASS / NOT CHECKED |
 | Full Navigator layer schema | NOT CHECKED |
 | Navigator application import | NOT CHECKED |
 
