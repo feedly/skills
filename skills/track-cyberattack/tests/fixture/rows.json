@@ -1,0 +1,622 @@
+{
+ "summary": {
+  "attack": "Harbor Ledger breach",
+  "status": "Contained",
+  "case_type": "incident",
+  "iteration": 1,
+  "as_of": "2026-11-02T09:00:00Z",
+  "tlp": "TLP:CLEAR",
+  "language": "en",
+  "attack_version": "v20.1",
+  "bluf": "Intruders exploited CVE-2026-41234 in Harbor Ledger's FerryGate server on 14 October 2026 and copied customer contact details. Defenders running FerryGate 9.0 to 9.4.1 should patch to 9.4.2 and hunt for web shells.",
+  "leadership": "A payments firm lost customer names and email addresses through a flaw in a file transfer product. Firms using the same product should update it this week.",
+  "exposure": "[ANALYST CONFIRMS] Do we run FerryGate 9.0 to 9.4.1 anywhere, and is it internet-facing?",
+  "takeaway": "Patch FerryGate to 9.4.2 and check web roots for unknown .aspx files.",
+  "org_context": "Financial services, Europe, FerryGate in the DMZ",
+  "relevance": "We run FerryGate in the DMZ, so the initial access path in C01 applies to us. The data taken (C04) matches what our own transfer servers hold.",
+  "scope": "The October 2026 intrusion at Harbor Ledger through FerryGate. Out of scope: the unrelated 2025 phishing incident at the same firm.",
+  "attribution_statement": "Northlight Research names Crimson Ferry, and the actor listed the victim on its leak site; police have arrested one suspect. The victim has not named an actor.",
+  "actor": "Crimson Ferry",
+  "actor_likelihood": "roughly even chance",
+  "actor_confidence": "low",
+  "glance_victim": "Harbor Ledger, a European payments firm",
+  "glance_type": "Intrusion through a vulnerable file transfer server",
+  "glance_window": "12 to 22 October 2026",
+  "glance_access": "Exploitation of CVE-2026-41234 in FerryGate",
+  "glance_impact": "Customer names and email addresses copied",
+  "glance_attribution": "Crimson Ferry named by one researcher; not confirmed",
+  "validation": "check passed; the audit found no High items. One summarised source could not be quote-checked."
+ },
+ "scope": [
+  {
+   "scope_id": "N01",
+   "kind": "Name",
+   "value": "Harbor Ledger breach"
+  },
+  {
+   "scope_id": "N02",
+   "kind": "Name",
+   "value": "FerryGate intrusion"
+  },
+  {
+   "scope_id": "X01",
+   "kind": "Out of scope",
+   "value": "2025 phishing incident at Harbor Ledger",
+   "note": "No source links it."
+  }
+ ],
+ "sources": [
+  {
+   "source_id": "S01",
+   "title": "Notice of a security incident",
+   "publisher": "Harbor Ledger",
+   "date": "2026-10-23",
+   "url": "https://example.com/harbor-ledger/notice",
+   "type": "victim statement",
+   "position": "Primary",
+   "originator": "Harbor Ledger",
+   "first_party": "victim",
+   "interest": "victim",
+   "retrieval": "read",
+   "reliability": "B"
+  },
+  {
+   "source_id": "S02",
+   "title": "FerryGate security advisory FG-2026-07",
+   "publisher": "FerryGate Systems",
+   "date": "2026-10-20",
+   "url": "https://example.com/ferrygate/advisory",
+   "type": "vendor advisory",
+   "position": "Primary",
+   "originator": "FerryGate Systems",
+   "interest": "vendor",
+   "retrieval": "read",
+   "reliability": "A"
+  },
+  {
+   "source_id": "S03",
+   "title": "Payments firm hit by appliance flaw",
+   "publisher": "Example Tech News",
+   "date": "2026-10-24",
+   "url": "https://example.com/news/harbor",
+   "type": "news",
+   "position": "Secondary",
+   "originator": "Harbor Ledger",
+   "relay_of": "S01",
+   "interest": "independent",
+   "retrieval": "read",
+   "reliability": "C",
+   "notes": "Relays S01."
+  },
+  {
+   "source_id": "S04",
+   "title": "Crimson Ferry exploits FerryGate",
+   "publisher": "Northlight Research",
+   "date": "2026-10-25",
+   "url": "https://example.com/northlight/crimson-ferry",
+   "type": "vendor research",
+   "position": "Primary",
+   "originator": "Northlight Research",
+   "interest": "vendor",
+   "retrieval": "read",
+   "reliability": "B"
+  },
+  {
+   "source_id": "S05",
+   "title": "Joint advisory on FerryGate exploitation",
+   "publisher": "National CERT",
+   "date": "2026-10-31",
+   "type": "government advisory",
+   "position": "Primary",
+   "originator": "National CERT",
+   "interest": "government",
+   "retrieval": "failed",
+   "reliability": "A",
+   "notes": "Page would not load; logged as G02."
+  },
+  {
+   "source_id": "S06",
+   "title": "Arrest in FerryGate intrusion case",
+   "publisher": "Metro Police",
+   "date": "2026-10-30",
+   "url": "https://example.com/police/release",
+   "type": "law enforcement release",
+   "position": "Primary",
+   "originator": "Metro Police",
+   "first_party": "authority",
+   "interest": "government",
+   "retrieval": "read",
+   "reliability": "A"
+  },
+  {
+   "source_id": "S07",
+   "title": "ATT&CK v20.1 release notes",
+   "publisher": "MITRE",
+   "date": "2026-11-05",
+   "url": "https://attack.mitre.org/resources/updates/",
+   "type": "reference",
+   "position": "Primary",
+   "originator": "MITRE",
+   "interest": "independent",
+   "retrieval": "read",
+   "reliability": "A"
+  },
+  {
+   "source_id": "S08",
+   "title": "Breach at Harbor Ledger: what we know",
+   "publisher": "Gullwing Gazette",
+   "date": "2026-10-26",
+   "url": "https://example.com/digest/harbor",
+   "type": "news",
+   "position": "Secondary",
+   "originator": "Harbor Ledger",
+   "relay_of": "S01",
+   "interest": "independent",
+   "retrieval": "summarised",
+   "reliability": "D"
+  }
+ ],
+ "ledger": [
+  {
+   "claim_id": "C01",
+   "topic": "Initial access",
+   "claim": "The intruders exploited CVE-2026-41234 in Harbor Ledger's FerryGate server on 14 October 2026.",
+   "quote": "Attackers exploited a vulnerability in our FerryGate file transfer server on 14 October.",
+   "quote_source": "S01",
+   "line": 3,
+   "status": "Confirmed",
+   "credibility": 1,
+   "source_ids": "S01 S04",
+   "corroboration": "Harbor Ledger (S01); Northlight Research (S04)",
+   "event_date": "2026-10-14",
+   "first_party": true
+  },
+  {
+   "claim_id": "C02",
+   "topic": "Detection",
+   "claim": "Harbor Ledger detected unusual activity on the FerryGate server at 14:05 UTC on 21 October 2026.",
+   "quote": "On 21 October 2026 at 14:05 UTC we detected unusual activity on our FerryGate file transfer server.",
+   "quote_source": "S01",
+   "line": 2,
+   "status": "Confirmed",
+   "credibility": 2,
+   "source_ids": "S01",
+   "corroboration": "first-party: Harbor Ledger (S01)",
+   "event_date": "2026-10-21T14:05Z",
+   "first_party": true
+  },
+  {
+   "claim_id": "C03",
+   "topic": "Containment",
+   "claim": "Harbor Ledger isolated the affected server on 22 October 2026.",
+   "quote": "We isolated the affected server on 22 October and engaged an outside forensic firm.",
+   "quote_source": "S01",
+   "line": 4,
+   "status": "Confirmed",
+   "credibility": 2,
+   "source_ids": "S01",
+   "corroboration": "first-party: Harbor Ledger (S01)",
+   "event_date": "2026-10-22",
+   "first_party": true
+  },
+  {
+   "claim_id": "C04",
+   "topic": "Impact",
+   "claim": "The intruders copied customer names and email addresses from the server.",
+   "quote": "Some customer names and email addresses were copied from the server.",
+   "quote_source": "S01",
+   "line": 5,
+   "status": "Confirmed",
+   "credibility": 2,
+   "source_ids": "S01",
+   "corroboration": "first-party: Harbor Ledger (S01)",
+   "first_party": true
+  },
+  {
+   "claim_id": "C05",
+   "topic": "Impact",
+   "claim": "Harbor Ledger says no payment card data was affected.",
+   "quote": "No payment card data was affected.",
+   "quote_source": "S01",
+   "line": 6,
+   "status": "Reported",
+   "credibility": 3,
+   "source_ids": "S01",
+   "corroboration": "single originator: Harbor Ledger (S01), a statement that favours the victim"
+  },
+  {
+   "claim_id": "C06",
+   "topic": "Vulnerability",
+   "claim": "CVE-2026-41234 lets an unauthenticated attacker run code on FerryGate 9.0 to 9.4.1, and 9.4.2 fixes it.",
+   "quote": "CVE-2026-41234 is an unauthenticated remote code execution flaw in FerryGate versions 9.0 to 9.4.1.",
+   "quote_source": "S02",
+   "line": 2,
+   "status": "Reported",
+   "credibility": 2,
+   "source_ids": "S02",
+   "corroboration": "single originator: FerryGate Systems (S02)"
+  },
+  {
+   "claim_id": "C07",
+   "topic": "Execution",
+   "claim": "The intruders dropped a web shell named health.aspx, and w3wp.exe spawned cmd.exe on the appliance.",
+   "quote": "We observed the intruders drop a web shell named health.aspx after exploiting CVE-2026-41234.",
+   "quote_source": "S04",
+   "line": 2,
+   "status": "Reported",
+   "credibility": 2,
+   "source_ids": "S04",
+   "corroboration": "single originator: Northlight Research (S04)"
+  },
+  {
+   "claim_id": "C08",
+   "topic": "Attribution",
+   "claim": "Crimson Ferry listed Harbor Ledger on its leak site on 22 October 2026.",
+   "quote": "Crimson Ferry listed Harbor Ledger on its leak site on 22 October 2026.",
+   "quote_source": "S04",
+   "line": 4,
+   "status": "Reported",
+   "credibility": 3,
+   "source_ids": "S04",
+   "corroboration": "single originator: Northlight Research (S04)",
+   "event_date": "2026-10-22"
+  },
+  {
+   "claim_id": "C09",
+   "topic": "Earliest activity",
+   "claim": "The appliance first contacted the attacker's server on 12 October 2026.",
+   "quote": "Harbor Ledger's appliance first contacted the attacker's server on 12 October 2026.",
+   "quote_source": "S04",
+   "line": 5,
+   "status": "Reported",
+   "credibility": 3,
+   "source_ids": "S04",
+   "corroboration": "single originator: Northlight Research (S04)",
+   "event_date": "2026-10-12"
+  },
+  {
+   "claim_id": "C10",
+   "topic": "Law enforcement",
+   "claim": "Metro Police arrested a man on 29 October on suspicion of taking part in the intrusion; he is an alleged participant and has not been convicted.",
+   "quote": "Metro Police arrested a 31-year-old man on 29 October on suspicion of taking part in the intrusion.",
+   "quote_source": "S06",
+   "line": 2,
+   "status": "Reported",
+   "credibility": 2,
+   "source_ids": "S06",
+   "corroboration": "single originator: Metro Police (S06)",
+   "event_date": "2026-10-29"
+  },
+  {
+   "claim_id": "C11",
+   "topic": "Disclosure",
+   "claim": "Harbor Ledger disclosed the incident publicly on 23 October 2026.",
+   "status": "Confirmed",
+   "credibility": 1,
+   "source_ids": "S01 S03",
+   "corroboration": "first-party: Harbor Ledger (S01)",
+   "event_date": "2026-10-23",
+   "first_party": true,
+   "quote_source": "S01",
+   "line": 1
+  },
+  {
+   "claim_id": "C12",
+   "topic": "Impact",
+   "claim": "A news digest says the attackers stole customer contact details.",
+   "quote": "The attackers stole the contact details of every customer.",
+   "quote_source": "S08",
+   "status": "Reported",
+   "credibility": 4,
+   "source_ids": "S08",
+   "corroboration": "single originator: Harbor Ledger, relayed by S08"
+  },
+  {
+   "claim_id": "C13",
+   "topic": "Payload",
+   "claim": "No source reports any encryption or destructive payload.",
+   "status": "Unknown",
+   "credibility": 6,
+   "source_ids": "S01 S04"
+  },
+  {
+   "claim_id": "A01",
+   "topic": "Key judgment",
+   "claim": "Crimson Ferry is roughly even chance to be responsible for the breach (low confidence), resting on one researcher's attribution and the actor's own leak-site listing.",
+   "status": "Assessed",
+   "credibility": 4,
+   "source_ids": "S04",
+   "basis": "C07 C08"
+  },
+  {
+   "claim_id": "A02",
+   "topic": "Key judgment",
+   "claim": "Further FerryGate victims are likely to emerge in the coming weeks (moderate confidence), because the flaw needs no credentials and many hosts remain unpatched.",
+   "status": "Assessed",
+   "credibility": 3,
+   "source_ids": "S02 S04",
+   "basis": "C06 C07"
+  }
+ ],
+ "timeline": [
+  {
+   "event_id": "E01",
+   "when": "2026-10-12",
+   "precision": "day",
+   "lane": "Attacker",
+   "event_type": "earliest-activity",
+   "event": "Harbor Ledger's appliance first contacts the attacker's server",
+   "status": "Reported",
+   "claim_ids": "C09"
+  },
+  {
+   "event_id": "E02",
+   "when": "2026-10-14",
+   "precision": "day",
+   "lane": "Attacker",
+   "event_type": "initial-access",
+   "event": "Intruders exploit CVE-2026-41234 on Harbor Ledger's FerryGate server",
+   "status": "Confirmed",
+   "claim_ids": "C01",
+   "disclosed": "2026-10-23"
+  },
+  {
+   "event_id": "E03",
+   "when": "2026-10-21T14:05Z",
+   "precision": "exact",
+   "lane": "Victim and response",
+   "event_type": "detection",
+   "event": "Harbor Ledger detects unusual activity on the FerryGate server",
+   "status": "Confirmed",
+   "claim_ids": "C02"
+  },
+  {
+   "event_id": "E04",
+   "when": "2026-10-22",
+   "precision": "day",
+   "lane": "Victim and response",
+   "event_type": "containment",
+   "event": "Harbor Ledger isolates the affected FerryGate server",
+   "status": "Confirmed",
+   "claim_ids": "C03"
+  },
+  {
+   "event_id": "E05",
+   "when": "2026-10-22",
+   "precision": "day",
+   "lane": "Attacker",
+   "event_type": "claim",
+   "event": "Crimson Ferry lists Harbor Ledger on its leak site",
+   "status": "Reported",
+   "claim_ids": "C08"
+  },
+  {
+   "event_id": "E06",
+   "when": "2026-10-23",
+   "precision": "day",
+   "lane": "Disclosure",
+   "event_type": "disclosure",
+   "event": "Harbor Ledger publishes its incident notice",
+   "status": "Confirmed",
+   "claim_ids": "C11"
+  },
+  {
+   "event_id": "E07",
+   "when": "2026-10-29",
+   "precision": "day",
+   "lane": "Government and law enforcement",
+   "event_type": "law-enforcement",
+   "event": "Metro Police arrest a suspect in the intrusion",
+   "status": "Reported",
+   "claim_ids": "C10"
+  }
+ ],
+ "figures": [],
+ "victims": [
+  {
+   "victim_id": "V01",
+   "victim": "Harbor Ledger",
+   "role": "compromised party",
+   "sector": "Financial services",
+   "country": "Netherlands",
+   "tier": "Confirmed",
+   "impact": "Customer contact details copied",
+   "data_types": [
+    "PII"
+   ],
+   "count_method": "Victim statement S01, as of 23 October 2026",
+   "claim_ids": "C01 C04"
+  }
+ ],
+ "ttps": [
+  {
+   "ttp_id": "M01",
+   "technique_id": "T1190",
+   "name": "Exploit Public-Facing Application",
+   "tactic": "initial-access",
+   "phase": "Initial access",
+   "how_used": "Exploited CVE-2026-41234 on the internet-facing FerryGate server.",
+   "occurrence": "Reported",
+   "confidence": "High",
+   "event_ids": "E02",
+   "claim_ids": "C01"
+  },
+  {
+   "ttp_id": "M02",
+   "technique_id": "T1505.003",
+   "name": "Web Shell",
+   "tactic": "persistence",
+   "phase": "Post-compromise",
+   "how_used": "Dropped health.aspx in the web root.",
+   "occurrence": "Reported",
+   "confidence": "Low",
+   "claim_ids": "C07"
+  },
+  {
+   "ttp_id": "M03",
+   "technique_id": "T1059.003",
+   "name": "Windows Command Shell",
+   "tactic": "execution",
+   "phase": "Post-compromise",
+   "how_used": "The IIS worker process spawned cmd.exe.",
+   "occurrence": "Reported",
+   "confidence": "Low",
+   "claim_ids": "C07"
+  }
+ ],
+ "attribution": [
+  {
+   "row_id": "H01",
+   "kind": "Statement",
+   "party": "Northlight Research",
+   "position": "Names Crimson Ferry from its leak-site listing and tooling (S04)."
+  },
+  {
+   "row_id": "H02",
+   "kind": "Signal",
+   "party": "Leak-site listing",
+   "position": "Crimson Ferry listed the victim on 22 October (C08).",
+   "limits": "An actor's own claim, known only through S04.",
+   "claim_ids": "C08"
+  },
+  {
+   "row_id": "H03",
+   "kind": "Diamond",
+   "party": "Adversary",
+   "position": "Crimson Ferry (named by S04; not confirmed)."
+  },
+  {
+   "row_id": "H04",
+   "kind": "Diamond",
+   "party": "Capability",
+   "position": "CVE-2026-41234 exploit and the health.aspx web shell (C01, C07)."
+  },
+  {
+   "row_id": "H05",
+   "kind": "Diamond",
+   "party": "Infrastructure",
+   "position": "An attacker server the appliance contacted from 12 October (C09)."
+  },
+  {
+   "row_id": "H06",
+   "kind": "Diamond",
+   "party": "Victim",
+   "position": "Harbor Ledger's FerryGate server and its customer data (C04)."
+  }
+ ],
+ "conflicts": [
+  {
+   "conflict_id": "K01",
+   "topic": "Data taken",
+   "position_a": "Names and email addresses (S01)",
+   "position_b": "All contact details of every customer (S08)",
+   "resolution": "Use S01: S08 is a summarised relay of S01.",
+   "claim_ids": "C04 C12"
+  }
+ ],
+ "gaps": [
+  {
+   "item_id": "G01",
+   "kind": "Gap",
+   "item": "How many customers were affected",
+   "why": "Sets the notification scale",
+   "next_step": "Watch for a regulator filing or an updated notice",
+   "status": "Open"
+  },
+  {
+   "item_id": "G02",
+   "kind": "Gap",
+   "item": "The National CERT advisory (S05) could not be read",
+   "why": "It may hold government-confirmed indicators",
+   "next_step": "Retry on next update",
+   "status": "Open",
+   "source_ids": "S05"
+  },
+  {
+   "item_id": "W01",
+   "kind": "Watch",
+   "item": "New web shells in FerryGate web roots",
+   "why": "Shows the same tradecraft (C07)",
+   "next_step": "Search for new .aspx files under the FerryGate web root since 12 October",
+   "claim_ids": "C07"
+  },
+  {
+   "item_id": "R01",
+   "kind": "Action",
+   "item": "Patch FerryGate to 9.4.2",
+   "why": "Closes the initial access path (C06)",
+   "next_step": "If FerryGate is internet-facing, upgrade to 9.4.2 (C06). Analyst guidance: search IIS logs for POSTs to unknown .aspx files since 12 October.",
+   "owner": "Infrastructure",
+   "claim_ids": "C06"
+  },
+  {
+   "item_id": "R02",
+   "kind": "Action",
+   "item": "Hunt for the IIS worker spawning a shell",
+   "why": "Matches the execution step",
+   "next_step": "Analyst guidance: query EDR process telemetry for w3wp.exe with a cmd.exe or powershell.exe child in the last 30 days",
+   "owner": "SOC"
+  }
+ ],
+ "software": [
+  {
+   "software_id": "P01",
+   "software": "FerryGate file transfer server",
+   "version": "9.0 to 9.4.1",
+   "role": "Exploited service",
+   "how": "Vulnerable to CVE-2026-41234",
+   "cve": "CVE-2026-41234",
+   "affected_versions": "9.0 to 9.4.1",
+   "fixed_version": "9.4.2",
+   "advisory_source": "S02",
+   "claim_ids": "C06"
+  }
+ ],
+ "killchain": [
+  {
+   "stage_id": "Q01",
+   "order": 1,
+   "stage": "Initial access",
+   "observed": "Reported",
+   "tactic": "initial-access",
+   "techniques": "T1190",
+   "action": "Exploitation of CVE-2026-41234",
+   "logs": "Analyst guidance: IIS logs and the FerryGate audit log",
+   "sourced_fields": "action",
+   "claim_ids": "C01"
+  },
+  {
+   "stage_id": "Q02",
+   "order": 2,
+   "stage": "Execution and persistence",
+   "observed": "Reported",
+   "tactic": "persistence",
+   "techniques": "T1059.003 T1505.003",
+   "process": "w3wp.exe spawns cmd.exe",
+   "parent": "w3wp.exe",
+   "artefacts": "health.aspx in the web root",
+   "logs": "Analyst guidance: Sysmon Event ID 1 and 11, or EDR process and file telemetry; needs process creation logging turned on",
+   "hunt": "Analyst guidance: w3wp.exe with a cmd.exe or powershell.exe child",
+   "sourced_fields": "process artefacts parent",
+   "claim_ids": "C07"
+  },
+  {
+   "stage_id": "Q03",
+   "order": 3,
+   "stage": "Exfiltration",
+   "observed": "Not observed",
+   "tactic": "exfiltration",
+   "action": "Not available in provided reports"
+  }
+ ],
+ "headlines": [
+  {
+   "metric": "dwell",
+   "label": "Days from first contact to detection",
+   "kind": "span_days",
+   "from_event": "E01",
+   "to_event": "E03",
+   "unit": "days"
+  }
+ ]
+}

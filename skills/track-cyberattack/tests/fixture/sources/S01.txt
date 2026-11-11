@@ -1,0 +1,6 @@
+Notice of a security incident | Harbor Ledger | 2026-10-23 | https://example.com/harbor-ledger/notice | retrieval: read
+On 21 October 2026 at 14:05 UTC we detected unusual activity on our FerryGate file transfer server.
+Attackers exploited a vulnerability in our FerryGate file transfer server on 14 October.
+We isolated the affected server on 22 October and engaged an outside forensic firm.
+Some customer names and email addresses were copied from the server.
+No payment card data was affected.

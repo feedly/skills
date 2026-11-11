@@ -1,0 +1,1080 @@
+<meta name="dash-one-writer">
+<style>
+#dash-root { --dash-gutter: var(--cds-pad-lg); }
+.lx { font-family: var(--font-anthropic-sans); color: var(--color-fg); max-width: 1180px; margin-inline: auto; }
+.lx-title { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0 0 var(--cds-gap-xs); }
+.lx-metaline { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm) var(--cds-gap-md); align-items: center; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-bottom: var(--cds-gap-sm); }
+.lx-pill { display: inline-block; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--color-warn); color: var(--color-warn); font-weight: var(--cds-font-weight-medium); }
+.lx-bluf { font-size: var(--cds-font-size-body); line-height: 1.55; margin: 0 0 var(--cds-gap-md); max-width: 75ch; }
+.lx-tabs { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); border-bottom: 1px solid var(--color-border-line); margin-bottom: var(--cds-gap-lg); }
+.lx-tab { font: inherit; font-size: var(--cds-font-size-body); background: none; border: 0; border-bottom: 2px solid transparent; color: var(--color-fg-muted); padding: var(--cds-pad-sm) var(--cds-pad-md); cursor: pointer; }
+.lx-tab[aria-selected="true"] { color: var(--color-fg); border-bottom-color: var(--color-fg); }
+.lx-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: var(--cds-gap-md); margin-bottom: var(--cds-gap-md); }
+.lx-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); margin-bottom: var(--cds-gap-md); min-width: 0; }
+.lx-grid > .lx-card { margin-bottom: 0; }
+.lx-h { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0 0 var(--cds-gap-xs); }
+.lx-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0 0 var(--cds-gap-sm); line-height: 1.45; }
+.lx-p { font-size: var(--cds-font-size-body); line-height: 1.55; margin: 0 0 var(--cds-gap-sm); }
+.lx-label { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); text-transform: uppercase; letter-spacing: .04em; margin: var(--cds-gap-sm) 0 2px; }
+.lx-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr)); gap: var(--cds-gap-md); margin-bottom: var(--cds-gap-md); min-height: 6.5rem; }
+.lx-tile { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md); }
+.lx-tile[role="link"] { cursor: pointer; }
+.lx-tile[role="link"]:hover { border-color: var(--color-fg-muted); }
+.lx-tile-v { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; line-height: 1.1; }
+.lx-tile-u { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-left: 4px; }
+.lx-tile-l { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-top: var(--cds-gap-xs); line-height: 1.35; }
+.lx-tile:first-child { border-color: var(--color-fg-muted); }
+.lx-scroll { max-height: 34rem; overflow: auto; }
+.lx-table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); line-height: 1.45; }
+.lx-table th { position: sticky; top: 0; background: var(--color-panel); text-align: left; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); }
+.lx-table td { padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); vertical-align: top; }
+.lx-table td:first-child { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.lx-table tr.lx-hl td { background: color-mix(in srgb, var(--color-warn) 18%, transparent); transition: background var(--cds-dur-slow); }
+.lx-id { color: inherit; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px; cursor: pointer; }
+.lx-st { white-space: nowrap; font-weight: var(--cds-font-weight-medium); }
+.lx-st-Confirmed { color: var(--color-ok); }
+.lx-st-Reported, .lx-st-Claimed { color: var(--color-warn); }
+.lx-st-Unknown { color: var(--color-bad); }
+.lx-st-Superseded { color: var(--color-fg-muted); text-decoration: line-through; }
+.lx-st-Assessed { color: var(--color-fg); }
+.lx-st-Actor-asserted { color: var(--color-warn); font-style: italic; }
+.lx-st-Closed { color: var(--color-fg-muted); }
+.lx-wrap { overflow-x: auto; max-width: 100%; }
+.lx-table tr.lx-closed td { color: var(--color-fg-muted); }
+.lx-table tr.lx-closed td:nth-child(2) { text-decoration: line-through; }
+.lx-table tr.lx-ev { cursor: pointer; }
+.lx-table tr.lx-ev:hover td { background: color-mix(in srgb, var(--color-fg) 5%, transparent); }
+.lx-table tr.lx-ev-open td { border-bottom-color: transparent; }
+.lx-table tr.lx-detail td { background: var(--color-bg); white-space: normal; }
+.lx-detail-claim { margin: 0 0 var(--cds-gap-xs); line-height: 1.45; }
+.lx-ach td, .lx-ach th { text-align: center; }
+.lx-ach td:first-child, .lx-ach th:first-child { text-align: left; }
+.lx-ach-C { color: var(--color-ok); font-weight: var(--cds-font-weight-medium); }
+.lx-ach-I { color: var(--color-bad); font-weight: var(--cds-font-weight-medium); }
+.lx-ach-N { color: var(--color-fg-muted); }
+.lx-stale { color: var(--color-warn); font-weight: var(--cds-font-weight-medium); }
+.lx-bluf-h { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); text-transform: uppercase; letter-spacing: .04em; margin: var(--cds-gap-sm) 0 2px; font-weight: var(--cds-font-weight-medium); }
+.lx-mit a { display: block; }
+.lx-search { font: inherit; font-size: var(--cds-font-size-body); width: 100%; max-width: 24rem; padding: var(--cds-pad-xs) var(--cds-pad-sm); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-bg); color: var(--color-fg); margin-bottom: var(--cds-gap-sm); }
+.lx-btn { font: inherit; font-size: var(--cds-font-size-caption); background: var(--color-bg); color: var(--color-fg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-xs) var(--cds-pad-md); cursor: pointer; margin-bottom: var(--cds-gap-sm); }
+.lx-toggle { display: inline-flex; gap: 0; margin-bottom: var(--cds-gap-sm); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); overflow: hidden; }
+.lx-mode { font: inherit; font-size: var(--cds-font-size-caption); background: none; border: 0; padding: var(--cds-pad-xs) var(--cds-pad-md); color: var(--color-fg-muted); cursor: pointer; }
+.lx-mode[aria-pressed="true"] { background: var(--color-bg); color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+.lx-lanes { position: relative; min-height: 260px; }
+.lx-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); max-width: 260px; line-height: 1.4; z-index: 2; }
+.lx-tip-when { color: var(--cds-text-secondary); }
+.lx-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-top: var(--cds-gap-sm); }
+.lx-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+.lx-chain { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: var(--cds-gap-md); min-height: 12rem; }
+.lx-phase { background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md); }
+.lx-phase-h { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); margin-bottom: var(--cds-gap-sm); }
+.lx-tactic { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); text-transform: uppercase; letter-spacing: .04em; margin: var(--cds-gap-sm) 0 4px; }
+.lx-tech { border-left: 4px solid var(--cds-chart-muted); background: var(--color-panel); border-radius: var(--cds-radius); padding: var(--cds-pad-xs) var(--cds-pad-sm); margin-bottom: 6px; font-size: var(--cds-font-size-caption); line-height: 1.4; }
+.lx-tech b { font-weight: var(--cds-font-weight-medium); }
+.lx-matrix { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(9rem, 1fr); gap: var(--cds-gap-sm); overflow-x: auto; min-height: 8rem; padding-bottom: var(--cds-gap-xs); }
+.lx-mcol-h { font-size: var(--cds-font-size-caption); font-weight: var(--cds-font-weight-medium); background: var(--color-bg); border-radius: var(--cds-radius); padding: var(--cds-pad-xs) var(--cds-pad-sm); margin-bottom: 6px; text-transform: capitalize; }
+.lx-mcell { border: 2px solid var(--cds-chart-muted); border-radius: var(--cds-radius); padding: var(--cds-pad-xs) var(--cds-pad-sm); margin-bottom: 6px; font-size: var(--cds-font-size-caption); line-height: 1.35; background: var(--color-panel); }
+.lx-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.lx-diamond { position: relative; display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-areas: ". adv ." "inf core cap" ". vic ."; gap: var(--cds-gap-sm); min-height: 16rem; }
+.lx-diamond > svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+.lx-diamond > .lx-vx, .lx-diamond > .lx-core { position: relative; z-index: 1; }
+@media (max-width: 640px) { .lx-diamond > svg { display: none; } }
+.lx-vx { background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-sm); font-size: var(--cds-font-size-caption); line-height: 1.4; }
+.lx-vx b { display: block; font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); margin-bottom: 4px; }
+.lx-core { grid-area: core; display: flex; align-items: center; justify-content: center; text-align: center; font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-heading); }
+.lx-a-Adversary { grid-area: adv; } .lx-a-Capability { grid-area: cap; } .lx-a-Infrastructure { grid-area: inf; } .lx-a-Victim { grid-area: vic; }
+@media (max-width: 640px) { .lx-diamond { grid-template-columns: 1fr; grid-template-areas: "adv" "core" "cap" "inf" "vic"; } }
+.lx-bars { min-height: 8rem; }
+.lx-bar-row { display: grid; grid-template-columns: 6.5rem 1fr 2rem; gap: var(--cds-gap-sm); align-items: center; margin-bottom: 8px; font-size: var(--cds-font-size-caption); }
+.lx-bar { height: 18px; border-radius: var(--cds-radius); min-width: 2px; }
+.lx-bar-n { font-variant-numeric: tabular-nums; text-align: right; }
+.lx a { color: inherit; }
+.lx-foot { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); border-top: 1px solid var(--color-border-line); padding-top: var(--cds-pad-md); margin-top: var(--cds-gap-lg); line-height: 1.5; }
+[data-dash-source-state=empty] { color: transparent; }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+</style>
+
+<div class="lx">
+  <h1 class="lx-title" id="top" data-draw="sumfield" data-source="summary" data-row="0" data-field="attack">–</h1>
+  <div class="lx-metaline">
+    <span class="lx-pill" data-draw="sumfield" data-source="summary" data-row="0" data-field="status">–</span>
+    <span>Iteration <b data-draw="sumfield" data-source="summary" data-row="0" data-field="iteration">–</b></span>
+    <span>As of <b data-draw="asof" data-source="summary" data-row="0" data-field="as_of">–</b></span>
+    <span data-draw="newest" data-source="summary">–</span>
+    <span data-draw="sumfield" data-source="summary" data-row="0" data-field="tlp">–</span>
+    <a href="#conflicts" class="lx-id" data-draw="conflictlink" data-source="conflicts">–</a>
+  </div>
+  <div class="lx-bluf-h">Summary (bottom line)</div>
+  <p class="lx-bluf" data-draw="sumfield" data-source="summary" data-row="0" data-field="bluf">–</p>
+
+  <nav class="lx-tabs" role="tablist" aria-label="Tracker sections">
+    <button class="lx-tab" role="tab" data-tab="overview" aria-selected="true">Overview</button>
+    <button class="lx-tab" role="tab" data-tab="timeline" aria-selected="false">Timeline</button>
+    <button class="lx-tab" role="tab" data-tab="victims" aria-selected="false">Victims</button>
+    <button class="lx-tab" role="tab" data-tab="ttps" aria-selected="false">TTPs and attack chain</button>
+    <button class="lx-tab" role="tab" data-tab="soc" aria-selected="false">Kill chain (SOC)</button>
+    <button class="lx-tab" role="tab" data-tab="attribution" aria-selected="false">Attribution</button>
+    <button class="lx-tab" role="tab" data-tab="claims" aria-selected="false">Claims and sources</button>
+    <button class="lx-tab" role="tab" data-tab="gaps" aria-selected="false">Gaps and actions</button>
+  </nav>
+
+  <section class="lx-page" id="overview">
+    <div class="lx-tiles" id="headline-tiles" data-draw="tiles" data-source="headline_values"></div>
+
+    <div class="lx-card" id="key-judgments">
+      <h2 class="lx-h">Key judgments</h2>
+      <p class="lx-note">Analytic judgments with ICD 203 likelihood and confidence. Select a claim ID to see the claims and sources behind it.</p>
+      <div class="lx-wrap">
+        <table class="lx-table" data-source="judgments" data-row-key="claim_id">
+          <thead><tr><th data-field="claim_id">ID</th><th data-field="claim">Judgment</th><th data-field="basis">Basis</th><th data-field="contrary">Strongest contrary signal</th></tr></thead>
+          <tbody data-draw="kj"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="lx-grid">
+      <div class="lx-card" id="leadership">
+        <h2 class="lx-h">For leadership</h2>
+        <p class="lx-note">Two plain sentences, the exposure question to answer, and the takeaway.</p>
+        <p class="lx-p" data-draw="sumfield" data-source="summary" data-row="0" data-field="leadership">–</p>
+        <div class="lx-relevance" hidden>
+          <div class="lx-label">Relevance to us</div>
+          <p class="lx-p" data-draw="sumfield" data-source="summary" data-row="0" data-field="relevance">–</p>
+        </div>
+        <div class="lx-label">Exposure question</div>
+        <p class="lx-p" data-draw="sumfield" data-source="summary" data-row="0" data-field="exposure">–</p>
+        <div class="lx-label">Takeaway</div>
+        <p class="lx-p" data-draw="sumfield" data-source="summary" data-row="0" data-field="takeaway">–</p>
+      </div>
+      <div class="lx-card" id="ir-metrics">
+        <h2 class="lx-h">Response metrics</h2>
+        <p class="lx-note">Worked out from two timeline events each. A metric is left out when either event is missing; precision is the weaker of the two events.</p>
+        <p class="lx-p lx-ir-none" hidden>The timeline does not yet hold the pairs of events these metrics need (earliest activity, detection, containment, disclosure, notification).</p>
+        <div class="lx-wrap lx-ir-table">
+          <table class="lx-table" data-source="ir_metrics" data-row-key="metric">
+            <thead><tr><th data-field="metric">Metric</th><th data-field="value">Days</th><th data-field="precision">Precision</th><th data-field="note">From and to</th></tr></thead>
+            <tbody data-draw="irmetrics"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="lx-card" id="changes">
+      <h2 class="lx-h">What changed since the last update</h2>
+      <p class="lx-note">Every new, revised, superseded or removed row and every closed gap in this iteration, across all sections.</p>
+      <p class="lx-p lx-chg-none">This is the first iteration, so there is no change log yet. The next update will list what changed here.</p>
+      <div class="lx-scroll lx-chg-table" hidden>
+        <table class="lx-table" data-source="changes" data-row-key="change_id">
+          <thead><tr><th data-field="change_id">ID</th><th data-field="kind">Kind</th><th data-field="item">Item</th><th data-field="before">Before</th><th data-field="after">After</th></tr></thead>
+          <tbody data-draw="changes"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="lx-card" id="conflicts">
+      <h2 class="lx-h">Where sources disagree</h2>
+      <p class="lx-note">Each disagreement between sources, the position this tracker uses, and why. The Word report carries the same table under Claims and sources.</p>
+      <p class="lx-p lx-conf-none" hidden>No source disagreements were found in this iteration.</p>
+      <div class="lx-scroll lx-conf-table">
+        <table class="lx-table" data-source="conflicts" data-row-key="conflict_id">
+          <thead><tr><th data-field="conflict_id">ID</th><th data-field="topic">Topic</th><th data-field="position_a">Position A</th><th data-field="position_b">Position B</th><th data-field="resolution">Resolution</th></tr></thead>
+          <tbody data-draw="conflicts"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="lx-page" id="timeline" hidden>
+    <div class="lx-card" id="lanes-card">
+      <h2 class="lx-h">Swim-lane timeline</h2>
+      <p class="lx-note">Dots are coloured by claim status; a bar is a window with a start and an end. Hover a dot to read the event, and select it to open the claims behind it. The full view gives each date with activity an equal slot, so long quiet stretches are compressed (marked //). The busiest-day view plots the timed events of the day with the most of them.</p>
+      <div class="lx-toggle" role="group" aria-label="Timeline view">
+        <button class="lx-mode" data-mode="all" aria-pressed="true">All dates</button>
+        <button class="lx-mode" data-mode="day" aria-pressed="false">Busiest day, by hour</button>
+      </div>
+      <div class="lx-lanes" id="lanes-chart" data-draw="lanes" data-source="timeline"></div>
+      <div class="lx-legend">
+        <span><i style="background: var(--color-ok)"></i>Confirmed</span>
+        <span><i style="background: var(--color-warn)"></i>Reported or actor-asserted</span>
+        <span><i style="background: var(--color-bad)"></i>Unknown</span>
+        <span><i style="background: var(--cds-chart-muted)"></i>Superseded</span>
+      </div>
+    </div>
+    <div class="lx-card" id="events">
+      <h2 class="lx-h">All events</h2>
+      <p class="lx-note">Times are UTC unless the event says otherwise; precision says how exact each time is. Select an event to see its claims in full, their status and their sources.</p>
+      <div class="lx-scroll">
+        <table class="lx-table" data-source="timeline" data-row-key="event_id">
+          <thead><tr><th data-field="event_id">ID</th><th data-field="when">When</th><th data-field="precision">Precision</th><th data-field="lane">Lane</th><th data-field="event">Event</th><th data-field="status">Status</th><th data-field="claim_ids">Claims</th></tr></thead>
+          <tbody data-draw="events"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="lx-page" id="victims" hidden>
+    <div class="lx-grid">
+      <div class="lx-card" id="tiers">
+        <h2 class="lx-h">Victims by tier</h2>
+        <p class="lx-note">Confirmed means a victim statement or a regulatory filing; Claimed means the actor said so, which is never confirmation.</p>
+        <div class="lx-bars" data-draw="tiers" data-source="victims_by_tier"></div>
+      </div>
+      <div class="lx-card" id="datatypes">
+        <h2 class="lx-h">Data exposed</h2>
+        <p class="lx-note">Victims per type of data the sources say was exposed. A type appears only when a cited claim names it.</p>
+        <div class="lx-bars" data-draw="datatypes" data-source="victims_by_data"></div>
+      </div>
+    </div>
+    <div class="lx-card" id="figures">
+      <h2 class="lx-h">Figures and how they were counted</h2>
+      <p class="lx-note">Every number comes from one ledger claim; read the note before repeating it.</p>
+      <p class="lx-p lx-fig-none" hidden>The sources give no figures yet.</p>
+      <div class="lx-wrap lx-fig-table">
+        <table class="lx-table" data-source="figures" data-row-key="figure_id">
+          <thead><tr><th data-field="figure_id">ID</th><th data-field="label">Figure</th><th data-field="value">Value</th><th data-field="status">Status</th><th data-field="note">Method and caveats</th></tr></thead>
+          <tbody data-draw="figures"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="lx-card" id="victim-table">
+      <h2 class="lx-h">Victims</h2>
+      <p class="lx-note">The upstream victim first, then the one-to-many spread.</p>
+      <div class="lx-wrap">
+        <table class="lx-table" data-source="victims" data-row-key="victim_id">
+          <thead><tr><th data-field="victim_id">ID</th><th data-field="victim">Victim</th><th data-field="role">Role</th><th data-field="tier">Tier</th><th data-field="impact">Impact</th><th data-field="data_types">Data exposed</th><th data-field="count_method">How counted</th><th data-field="claim_ids">Claims</th></tr></thead>
+          <tbody data-draw="victims"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="lx-page" id="ttps" hidden>
+    <div class="lx-card" id="chain">
+      <h2 class="lx-h">Attack chain</h2>
+      <p class="lx-note">MITRE ATT&amp;CK <b data-draw="sumfield" data-source="summary" data-row="0" data-field="attack_version">–</b>, grouped by phase (and by incident when the campaign has several) and tactic. Left border shows occurrence. Each technique ID opens its ATT&amp;CK page.</p>
+      <div class="lx-chain" data-draw="chain" data-source="ttps"></div>
+      <div class="lx-legend" data-draw="occlegend" data-source="ttps">–</div>
+    </div>
+    <div class="lx-card" id="matrix">
+      <h2 class="lx-h">ATT&amp;CK matrix view</h2>
+      <p class="lx-note">The same techniques laid out by tactic, in ATT&amp;CK order, with ICS tactics after Enterprise ones. Border shows occurrence. The Navigator layer files open this view in the ATT&amp;CK Navigator.</p>
+      <div class="lx-matrix" data-draw="matrix" data-source="ttps"></div>
+    </div>
+    <div class="lx-card" id="techniques">
+      <h2 class="lx-h">All techniques</h2>
+      <p class="lx-note">How this attacker used each technique, the events it appears in, and the source check that still needs doing. The last column lists ATT&amp;CK reference mitigations from the ATT&amp;CK knowledge base; they do not come from the reporting.</p>
+      <div class="lx-scroll">
+        <table class="lx-table" data-source="ttps" data-row-key="ttp_id">
+          <thead><tr><th data-field="technique_id">Technique</th><th data-field="name">Name</th><th data-field="tactic">Tactic</th><th data-field="incident">Incident</th><th data-field="how_used">How used</th><th data-field="occurrence">Occurrence</th><th data-field="confidence">Confidence</th><th data-field="event_ids">Events</th><th data-field="claim_ids">Claims</th><th data-field="check">Check</th><th data-field="mitigations">ATT&amp;CK reference mitigations</th></tr></thead>
+          <tbody data-draw="ttptable"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="lx-page" id="soc" hidden>
+    <div class="lx-card lx-socnote" hidden>
+      <h2 class="lx-h">SOC hand-off</h2>
+      <p class="lx-p" data-draw="sumfield" data-source="summary" data-row="0" data-field="soc_note">–</p>
+    </div>
+    <div class="lx-card" id="software">
+      <h2 class="lx-h">Software involved and versions</h2>
+      <p class="lx-note">Software the chain uses, abuses or exploits on the victim side. A version appears only when a source states it; otherwise it says Any. Brands that are only impersonated are left out.</p>
+      <p class="lx-p" data-draw="patchnote" data-source="software">–</p>
+      <div class="lx-wrap">
+        <table class="lx-table" data-source="software" data-row-key="software_id">
+          <thead><tr><th data-field="software_id">ID</th><th data-field="software">Software</th><th data-field="version">Version</th><th data-field="role">Role</th><th data-field="how">How</th><th data-field="cve">CVE</th><th data-field="affected_versions">Affected</th><th data-field="fixed_version">Fixed in</th><th data-field="claim_ids">Claims</th></tr></thead>
+          <tbody data-draw="software"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="lx-card" id="killchain">
+      <h2 class="lx-h">Kill chain for SOC hand-off</h2>
+      <p class="lx-note">One row per stage, from initial access to post-compromise, including stages nobody observed. Fields drawn from the sources cite claims. Anything starting "Analyst guidance:" is not in the sources; check it against local logging first. A log stream that must be turned on first says so, and a useful negative (a log the activity will not appear in) is noted. A stage with no host, such as an on-chain transfer or a change to a physical process, says "N/A (no host stage)" for process and parent.</p>
+      <button class="lx-btn" type="button" id="kc-copy">Copy table for SOC (tab-separated)</button>
+      <span class="lx-note" id="kc-copied" hidden>Copied.</span>
+      <div class="lx-scroll">
+        <table class="lx-table" data-source="killchain" data-row-key="stage_id">
+          <thead><tr><th data-field="order">#</th><th data-field="stage">Stage</th><th data-field="observed">Seen</th><th data-field="tactic">Tactic</th><th data-field="techniques">Techniques</th><th data-field="process">Process</th><th data-field="action">Action</th><th data-field="logs">Logs</th><th data-field="parent">Parent</th><th data-field="artefacts">Artefacts</th><th data-field="network">Network</th><th data-field="detections">Detections</th><th data-field="hunt">Hunt</th><th data-field="claim_ids">Claims</th></tr></thead>
+          <tbody data-draw="killchain"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="lx-page" id="attribution" hidden>
+    <div class="lx-card" id="attr-statement">
+      <h2 class="lx-h">Attribution statement</h2>
+      <p class="lx-note">One or two sentences an executive can repeat.</p>
+      <p class="lx-p" data-draw="sumfield" data-source="summary" data-row="0" data-field="attribution_statement">–</p>
+    </div>
+    <div class="lx-card" id="attr-signals">
+      <h2 class="lx-h">Attribution signals and their limits</h2>
+      <p class="lx-note">What each signal in the reporting shows, and what it cannot show.</p>
+      <div class="lx-wrap">
+        <table class="lx-table" data-source="attr_signals" data-row-key="row_id">
+          <thead><tr><th data-field="row_id">ID</th><th data-field="party">Signal</th><th data-field="position">What it shows</th><th data-field="limits">Limits</th><th data-field="claim_ids">Claims</th></tr></thead>
+          <tbody data-draw="attrsignals"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="lx-card" id="hypotheses">
+      <h2 class="lx-h">Competing hypotheses</h2>
+      <p class="lx-note">Shown only when the sources name two or more credible candidates. Each has an ICD 203 likelihood, a confidence level and the signals on both sides.</p>
+      <div class="lx-wrap">
+        <table class="lx-table" data-source="hypotheses" data-row-key="row_id">
+          <thead><tr><th data-field="row_id">ID</th><th data-field="party">Hypothesis</th><th data-field="likelihood">Likelihood</th><th data-field="confidence">Confidence</th><th data-field="for_signals">For</th><th data-field="against_signals">Against</th></tr></thead>
+          <tbody data-draw="hypotheses"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="lx-card" id="ach">
+      <h2 class="lx-h">Consistency of signals with each hypothesis</h2>
+      <p class="lx-note">Analysis of competing hypotheses: each signal against each hypothesis. C means consistent (cited for the hypothesis), I means inconsistent (cited against it), and a dash means not applicable. The hypothesis with the fewest I marks survives best; C marks count for less, because one signal can fit several hypotheses.</p>
+      <div class="lx-wrap" data-draw="ach" data-source="hypotheses attr_signals"></div>
+    </div>
+    <div class="lx-card" id="diamond">
+      <h2 class="lx-h">Diamond Model</h2>
+      <p class="lx-note">Adversary, capability, infrastructure and victim as the public reporting describes them. Pivot along an edge: from the infrastructure to other victims, or from the capability to other adversaries.</p>
+      <div class="lx-diamond" data-draw="diamond" data-source="diamond summary"></div>
+    </div>
+    <div class="lx-card" id="statements">
+      <h2 class="lx-h">Who has said what</h2>
+      <p class="lx-note">Every party that has published a position, and what it will and will not claim.</p>
+      <div class="lx-wrap">
+        <table class="lx-table" data-source="statements" data-row-key="row_id">
+          <thead><tr><th data-field="row_id">ID</th><th data-field="party">Party</th><th data-field="position">Position</th></tr></thead>
+          <tbody data-draw="statements"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="lx-page" id="claims" hidden>
+    <div class="lx-tiles" id="ledger-tiles" data-draw="evtiles" data-source="ledger_counts"></div>
+    <div class="lx-card" id="sources">
+      <h2 class="lx-h">Source register</h2>
+      <p class="lx-note">Admiralty reliability A to F. The originator is who first reported what each source says, so twenty stories relaying one blog count once. Interest says whose side the source is on: a statement that favours its speaker stays Reported until an independent originator supports it. Retrieval shows whether the full text was read; summarised means only a summary came back, so its quotes could not be checked.</p>
+      <div class="lx-scroll">
+        <table class="lx-table" data-source="sources" data-row-key="source_id">
+          <thead><tr><th data-field="source_id">ID</th><th data-field="title">Title</th><th data-field="publisher">Publisher</th><th data-field="date">Date</th><th data-field="reliability">Reliability</th><th data-field="position">Position</th><th data-field="originator">Originator</th><th data-field="interest">Interest</th><th data-field="retrieval">Retrieval</th></tr></thead>
+          <tbody data-draw="sources"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="lx-card" id="ledger">
+      <h2 class="lx-h">Claims ledger</h2>
+      <p class="lx-note">One fact per row, paraphrased, with status, Admiralty credibility 1 to 6, and how it is corroborated. Verbatim quotes stay in the analyst's local file.</p>
+      <input class="lx-search" type="search" placeholder="Search claims, topics or sources" aria-label="Search the ledger">
+      <div class="lx-scroll">
+        <table class="lx-table" data-source="ledger" data-row-key="claim_id">
+          <thead><tr><th data-field="claim_id">ID</th><th data-field="topic">Topic</th><th data-field="claim">Claim</th><th data-field="status">Status</th><th data-field="credibility">Cred.</th><th data-field="source_ids">Sources</th><th data-field="corroboration">Corroboration</th><th data-field="basis">Basis</th><th data-field="superseded_by">Superseded by</th></tr></thead>
+          <tbody data-draw="ledger"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="lx-grid">
+      <div class="lx-card" id="scope">
+        <h2 class="lx-h">Scope</h2>
+        <p class="lx-note">What this tracker covers, and what it deliberately leaves out.</p>
+        <p class="lx-p" data-draw="sumfield" data-source="summary" data-row="0" data-field="scope">–</p>
+        <div class="lx-label">Validation</div>
+        <p class="lx-p" data-draw="sumfield" data-source="summary" data-row="0" data-field="validation">–</p>
+      </div>
+      <div class="lx-card" id="names">
+        <h2 class="lx-h">Names, incidents and exclusions</h2>
+        <p class="lx-note">Names as their owners write them, with translations as extra Name rows; the incidents a campaign or actor covers; and items kept out of scope.</p>
+        <div class="lx-wrap">
+          <table class="lx-table" data-source="names" data-row-key="scope_id">
+            <thead><tr><th data-field="scope_id">ID</th><th data-field="kind">Kind</th><th data-field="value">Value</th><th data-field="note">Note</th></tr></thead>
+            <tbody data-draw="names"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lx-page" id="gaps" hidden>
+    <div class="lx-card" id="actions">
+      <h2 class="lx-h">Actions</h2>
+      <p class="lx-note">What to do now, and exactly how: the log source, the event ID or the query. Steps that start "Analyst guidance:" come from general knowledge, not the sources.</p>
+      <div class="lx-wrap">
+        <table class="lx-table" data-source="actions" data-row-key="item_id">
+          <thead><tr><th data-field="item_id">ID</th><th data-field="item">Action</th><th data-field="next_step">How</th><th data-field="owner">Owner</th><th data-field="claim_ids">Claims</th></tr></thead>
+          <tbody data-draw="actions"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="lx-card" id="watch">
+      <h2 class="lx-h">Watch list</h2>
+      <p class="lx-note">Early signs the attack is moving again, including behavioural detection ideas drawn from the sources.</p>
+      <div class="lx-wrap">
+        <table class="lx-table" data-source="watch" data-row-key="item_id">
+          <thead><tr><th data-field="item_id">ID</th><th data-field="item">Watch for</th><th data-field="why">Why</th><th data-field="next_step">How</th><th data-field="claim_ids">Claims</th></tr></thead>
+          <tbody data-draw="watch"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="lx-card" id="gap-list">
+      <h2 class="lx-h">Information gaps</h2>
+      <p class="lx-note">What we do not know, why it matters, and what would close it. A blocking gap caps any judgment that rests on it at low confidence. Closed gaps stay in the list, greyed, with the claim that answered them.</p>
+      <div class="lx-wrap">
+        <table class="lx-table" data-source="gap_items" data-row-key="item_id">
+          <thead><tr><th data-field="item_id">ID</th><th data-field="item">Gap</th><th data-field="why">Why it matters</th><th data-field="next_step">What would close it</th><th data-field="status">Status</th></tr></thead>
+          <tbody data-draw="gapitems"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <p class="lx-foot">Claim labels: <b>Confirmed</b> means two or more independent originators, or the victim or an authority (government, regulator or law enforcement) speaking about its own actions. <b>Reported</b> means one credible originator; an allegation against someone not convicted stays here. <b>Actor-asserted</b> means the attacker said it about itself, which shows only that the claim was made. <b>Assessed</b> is the analyst's judgment, with a likelihood and confidence. <b>Superseded</b> means later reporting replaced it, and it is kept on purpose. <b>Unknown</b> is a gap that matters. Select any claim or source ID to jump to it.</p>
+</div>
+
+<script>
+/* ---------- calculations: each section is a slice of the one attack tracker dataset ---------- */
+const slice = (name, pred) => (tracker) => tracker.filter((r) => r.collection === name && (!pred || pred(r))).map(({ collection, ...r }) => r);
+dash.calc('summary', { inputs: ['tracker'], title: 'Attack summary', description: 'The summary row of the attack tracker.', fn: slice('summary') });
+dash.calc('headlines', { inputs: ['tracker'], title: 'Headline definitions', description: 'Which events or figures each headline is worked out from.', fn: slice('headlines') });
+dash.calc('timeline', { inputs: ['tracker'], title: 'Timeline events', description: 'Dated events in the attack, each tied to ledger claims.', fn: slice('timeline') });
+dash.calc('figures', { inputs: ['tracker'], title: 'Figures', description: 'Numbers the sources give, each tied to one claim.', fn: slice('figures') });
+dash.calc('ledger', { inputs: ['tracker'], title: 'Claims ledger', description: 'Every atomic claim, paraphrased, with status, credibility and corroboration.', fn: slice('ledger') });
+dash.calc('judgments', { inputs: ['tracker'], title: 'Key judgments', description: 'Ledger rows whose topic is Key judgment.', fn: slice('ledger', (r) => r.topic === 'Key judgment') });
+dash.calc('sources', { inputs: ['tracker'], title: 'Source register', description: 'Every source document with its Admiralty reliability grade and interest.', fn: slice('sources') });
+dash.calc('victims', { inputs: ['tracker'], title: 'Victims', description: 'Victims with tier, role, data exposed and how they were counted.', fn: slice('victims') });
+dash.calc('ttps', { inputs: ['tracker'], title: 'Techniques', description: 'ATT&CK techniques with domain, phase, occurrence, confidence and reference mitigations.', fn: slice('ttps') });
+dash.calc('tactics', { inputs: ['tracker'], title: 'ATT&CK tactics', description: 'Tactic order for the pinned ATT&CK version, Enterprise then ICS.', fn: slice('tactics') });
+dash.calc('conflicts', { inputs: ['tracker'], title: 'Source conflicts', description: 'Where sources disagree and the resolution used.', fn: slice('conflicts') });
+dash.calc('hypotheses', { inputs: ['tracker'], title: 'Attribution hypotheses', description: 'Attribution rows of kind Hypothesis.', fn: slice('attribution', (r) => r.kind === 'Hypothesis') });
+dash.calc('attr_signals', { inputs: ['tracker'], title: 'Attribution signals', description: 'Attribution rows of kind Signal, with their limits.', fn: slice('attribution', (r) => r.kind === 'Signal' || r.kind === 'Evidence') });
+dash.calc('statements', { inputs: ['tracker'], title: 'Attribution statements', description: 'Attribution rows of kind Statement.', fn: slice('attribution', (r) => r.kind === 'Statement') });
+dash.calc('diamond', { inputs: ['tracker'], title: 'Diamond Model', description: 'Attribution rows of kind Diamond.', fn: slice('attribution', (r) => r.kind === 'Diamond') });
+dash.calc('actions', { inputs: ['tracker'], title: 'Actions', description: 'Gap rows of kind Action.', fn: slice('gaps', (r) => r.kind === 'Action') });
+dash.calc('watch', { inputs: ['tracker'], title: 'Watch list', description: 'Gap rows of kind Watch.', fn: slice('gaps', (r) => r.kind === 'Watch') });
+dash.calc('gap_items', { inputs: ['tracker'], title: 'Information gaps', description: 'Gap rows of kind Gap, open ones first.',
+  fn: (tracker) => slice('gaps', (r) => r.kind === 'Gap')(tracker).sort((a, b) => (a.status === 'Closed') - (b.status === 'Closed')) });
+dash.calc('changes', { inputs: ['tracker'], title: 'Change log', description: 'What changed in the latest iteration; empty on a first run.',
+  fn: (tracker) => {
+    const rows = slice('changes')(tracker);
+    const its = rows.map((r) => Number(r.iteration)).filter((n) => !isNaN(n) && n > 0);
+    if (!its.length) return rows;
+    const latest = Math.max(...its);
+    return rows.filter((r) => Number(r.iteration) === latest);
+  } });
+dash.calc('names', { inputs: ['tracker'], title: 'Names and scope', description: 'Aliases, incidents and out-of-scope items.', fn: slice('scope') });
+dash.calc('software', { inputs: ['tracker'], title: 'Software and versions', description: 'Software the chain uses or exploits, with versions only where a source states them.', fn: slice('software') });
+dash.calc('killchain', { inputs: ['tracker'], title: 'Kill chain for SOC', description: 'One row per stage with process, logs, artefacts and detections.',
+  fn: (tracker) => slice('killchain')(tracker).sort((a, b) => Number(a.order) - Number(b.order)) });
+dash.calc('ir_metrics', { inputs: ['tracker'], title: 'Response metrics', description: 'Dwell time, time to contain, disclose and notify, each from two timeline events.', fn: slice('ir_metrics') });
+
+dash.calc('headline_values', {
+  inputs: ['headlines', 'timeline', 'figures'],
+  title: 'Headline figures',
+  description: 'Each headline worked out from two timeline events or read from the figures table.',
+  fn: (headlines, timeline, figures) => headlines.map((h) => {
+    const at = (id, f) => { const r = timeline.find((e) => e.event_id === id); return r && r[f || 'when'] ? new Date(r[f || 'when']) : null; };
+    let value = null;
+    if (h.kind === 'figure') { const f = figures.find((x) => x.figure_id === h.figure_id); value = f ? Number(f.value) : null; }
+    else {
+      const a = at(h.from_event, h.from_field), b = at(h.to_event, h.to_field);
+      const per = { span_days: 864e5, span_hours: 36e5, span_minutes: 6e4 }[h.kind];
+      value = a && b && per ? Math.round((b - a) / per * 10) / 10 : null;
+    }
+    return { metric: h.metric, label: h.label, value, unit: h.unit || '' };
+  }),
+});
+dash.calc('victims_by_tier', { inputs: ['victims'], title: 'Victims by tier', description: 'Count of victim rows per tier, in tier order.',
+  fn: (victims) => ['Confirmed', 'Claimed', 'Reported', 'Assessed', 'Unknown'].map((tier) => ({ tier, victims: victims.filter((v) => v.tier === tier).length })) });
+const DATA_TYPES = ['PII', 'credentials', 'payment', 'health', 'intellectual property', 'OT or engineering data', 'none reported'];
+dash.calc('victims_by_data', { inputs: ['victims'], title: 'Data exposed', description: 'Count of victims per type of data the sources say was exposed.',
+  fn: (victims) => DATA_TYPES.map((type) => ({ tier: type, victims: victims.filter((v) => String(v.data_types || '').split(/[;,]/).map((x) => x.trim().toLowerCase()).includes(type.toLowerCase())).length })) });
+dash.calc('ledger_counts', { inputs: ['sources', 'ledger', 'conflicts'], title: 'Ledger counts', description: 'Documents, claims by status, and conflicts.',
+  fn: (sources, ledger, conflicts) => [
+    { metric: 'Documents', value: sources.length },
+    { metric: 'Claims', value: ledger.length },
+    { metric: 'Confirmed', value: ledger.filter((c) => c.status === 'Confirmed').length },
+    { metric: 'Reported', value: ledger.filter((c) => c.status === 'Reported').length },
+    { metric: 'Actor-asserted', value: ledger.filter((c) => c.status === 'Actor-asserted').length },
+    { metric: 'Superseded', value: ledger.filter((c) => c.status === 'Superseded').length },
+    { metric: 'Source conflicts', value: conflicts.length },
+  ] });
+
+/* ---------- helpers ---------- */
+const rowsOf = (id) => { const d = dash.data(id); return d.status === 'ok' ? d.data : null; };
+const STATUS_FILL = { Confirmed: 'var(--color-ok)', Reported: 'var(--color-warn)', 'Actor-asserted': 'var(--color-warn)', Assessed: 'var(--color-fg-muted)', Superseded: 'var(--cds-chart-muted)', Unknown: 'var(--color-bad)' };
+const OCC_FILL = () => ({ Observed: dash.colors[0], Reported: dash.colors[1], Capability: dash.colors[2], Assessed: 'var(--cds-chart-muted)' });
+const OCC_ORDER = ['Observed', 'Reported', 'Capability', 'Assessed'];
+const fmtNum = (v) => (v == null || isNaN(v)) ? '–' : (Number.isInteger(v) ? d3.format(',')(v) : d3.format(',.1f')(v));
+const fmtWhen = (s) => {
+  if (!s) return '';
+  const m = String(s).match(/^(\d{4})-(\d{2})(?:-(\d{2}))?(?:T(\d{2}):(\d{2}))?/);
+  if (!m) return String(s);
+  const mon = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][Number(m[2]) - 1];
+  return (m[3] ? Number(m[3]) + ' ' : '') + mon + ' ' + m[1] + (m[4] ? ', ' + m[4] + ':' + m[5] : '');
+};
+/* Only web links become clickable; anything else (javascript:, data:) is shown as text. */
+const safeUrl = (u) => (typeof u === 'string' && /^https?:\/\//i.test(u.trim())) ? u.trim() : null;
+const extLink = (href, text) => {
+  const a = document.createElement('a'); a.href = href; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = text; return a;
+};
+const techUrl = (id) => 'https://attack.mitre.org/techniques/' + id.replace('.', '/') + '/';
+const TECH_RE = /\b(T\d{4}(?:\.\d{3})?)\b/g;
+function linkTech(td, text) {
+  const s = text == null ? '' : String(text);
+  let last = 0, m; TECH_RE.lastIndex = 0;
+  while ((m = TECH_RE.exec(s))) {
+    if (m.index > last) td.appendChild(document.createTextNode(s.slice(last, m.index)));
+    td.appendChild(extLink(techUrl(m[1]), m[1]));
+    last = m.index + m[1].length;
+  }
+  td.appendChild(document.createTextNode(s.slice(last)));
+}
+function linkMitigations(td, text) {
+  td.className = 'lx-mit';
+  String(text || '').split(';').map((x) => x.trim()).filter(Boolean).forEach((x) => {
+    const m = x.match(/^(M\d{4})\s*(.*)$/);
+    td.appendChild(m ? extLink('https://attack.mitre.org/mitigations/' + m[1] + '/', m[1] + (m[2] ? ' ' + m[2] : '')) : document.createTextNode(x));
+  });
+}
+
+/* Claim (Cxx, Axx), source (Sxx) and event (Exx) IDs anywhere in a cell become links to their row. */
+const ID_RE = /\b([CASE]\d{2,})\b/g;
+function knownIds() {
+  const set = new Set();
+  (rowsOf('ledger') || []).forEach((r) => set.add(r.claim_id));
+  (rowsOf('sources') || []).forEach((r) => set.add(r.source_id));
+  (rowsOf('timeline') || []).forEach((r) => set.add(r.event_id));
+  return set;
+}
+function flash(row) {
+  row.scrollIntoView({ block: 'center' });
+  row.classList.add('lx-hl');
+  setTimeout(() => row.classList.remove('lx-hl'), 2400);
+}
+function jumpTo(id) {
+  if (id.startsWith('E')) { showPage('timeline'); openEvent(id, true); return; }
+  if (!id.startsWith('S') && window.lxQuery) {
+    window.lxQuery = '';
+    document.querySelectorAll('.lx-search').forEach((i) => { i.value = ''; });
+    dash.draw('ledger');
+  }
+  showPage('claims');
+  const row = document.getElementById('row-' + id);
+  if (row) flash(row);
+}
+function linkify(td, text, known) {
+  const s = text == null ? '' : String(text);
+  let last = 0, m, any = false;
+  ID_RE.lastIndex = 0;
+  while ((m = ID_RE.exec(s))) {
+    if (!known.has(m[1])) continue;
+    any = true;
+    if (m.index > last) td.appendChild(document.createTextNode(s.slice(last, m.index)));
+    const a = document.createElement('a');
+    a.className = 'lx-id'; a.href = '#row-' + m[1]; a.textContent = m[1];
+    const id = m[1];
+    a.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); jumpTo(id); });
+    td.appendChild(a);
+    last = m.index + m[1].length;
+  }
+  if (!any) { td.textContent = s; return; }
+  if (last < s.length) td.appendChild(document.createTextNode(s.slice(last)));
+}
+function fillTable(tbody, id, cols, opts) {
+  opts = opts || {};
+  const rows = rowsOf(id);
+  tbody.replaceChildren();
+  if (!rows) return;
+  const known = knownIds();
+  const keep = opts.filter ? rows.filter(opts.filter) : rows;
+  for (const r of keep) {
+    const tr = document.createElement('tr');
+    if (opts.rowId) tr.id = 'row-' + r[opts.rowId];
+    if (opts.rowClass) { const c = opts.rowClass(r); if (c) tr.className = c; }
+    for (const c of cols) {
+      const td = document.createElement('td');
+      const v = opts.value ? opts.value(r, c) : r[c];
+      if (opts.status && opts.status.includes(c)) {
+        const sp = document.createElement('span'); sp.className = 'lx-st lx-st-' + String(v == null ? '' : v).split(' ')[0]; sp.textContent = v == null ? '' : String(v); td.appendChild(sp);
+      } else if (opts.link === c) {
+        const href = safeUrl(r.url);
+        if (href) td.appendChild(extLink(href, String(v))); else td.textContent = v == null ? '' : String(v);
+      } else if (opts.tech && opts.tech.includes(c)) {
+        linkTech(td, v); if (opts.mono && opts.mono.includes(c)) td.classList.add('lx-mono');
+      } else if (opts.mitigations === c) {
+        linkMitigations(td, v);
+      } else if (opts.when === c) {
+        td.textContent = fmtWhen(v);
+      } else if (opts.num === c) {
+        td.textContent = fmtNum(Number(v));
+      } else if (opts.mono && opts.mono.includes(c)) {
+        td.className = 'lx-mono'; td.textContent = v == null ? '' : String(v);
+      } else if (opts.rowId === c) {
+        td.textContent = v == null ? '' : String(v);
+      } else {
+        linkify(td, v, known);
+      }
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+    if (opts.after) opts.after(r, tr);
+  }
+}
+
+/* ---------- tabs and links (outside drawings: only hidden and aria) ---------- */
+const showPage = (id) => {
+  document.querySelectorAll('.lx-page').forEach((s) => { s.hidden = s.id !== id; });
+  document.querySelectorAll('.lx-tab').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.tab === id)));
+  dash.setLink(id);
+  ['lanes', 'chain', 'matrix', 'diamond'].forEach((n) => dash.draw(n));
+};
+document.querySelectorAll('.lx-tab').forEach((t) => t.addEventListener('click', () => showPage(t.dataset.tab)));
+const linked = document.getElementById(location.hash.slice(1));
+if (linked && linked.classList.contains('lx-page')) showPage(linked.id);
+else if (linked) { const page = linked.closest('.lx-page'); if (page) showPage(page.id); linked.scrollIntoView(); }
+document.querySelectorAll('a[href="#conflicts"]').forEach((a) => a.addEventListener('click', (e) => {
+  e.preventDefault(); showPage('overview'); document.getElementById('conflicts').scrollIntoView({ block: 'start' });
+}));
+
+window.lxLaneMode = 'all';
+document.querySelectorAll('.lx-mode').forEach((b) => b.addEventListener('click', () => {
+  window.lxLaneMode = b.dataset.mode;
+  document.querySelectorAll('.lx-mode').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  dash.draw('lanes');
+}));
+window.lxQuery = '';
+document.querySelectorAll('.lx-search').forEach((inp) => inp.addEventListener('input', () => { window.lxQuery = inp.value.trim().toLowerCase(); dash.draw('ledger'); }));
+
+const KC_COLS = ['order', 'stage', 'observed', 'tactic', 'techniques', 'process', 'action', 'logs', 'parent', 'artefacts', 'network', 'detections', 'hunt', 'claim_ids'];
+document.getElementById('kc-copy').addEventListener('click', () => {
+  const rows = rowsOf('killchain') || [];
+  const clean = (v) => (v == null ? '' : String(v)).replace(/[\t\r\n]+/g, ' ');
+  const tsv = [KC_COLS.join('\t')].concat(rows.map((r) => KC_COLS.map((c) => clean(r[c])).join('\t'))).join('\n');
+  const done = () => { const n = document.getElementById('kc-copied'); n.hidden = false; setTimeout(() => { n.hidden = true; }, 2000); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(tsv).then(done, () => fallbackCopy(tsv, done));
+  else fallbackCopy(tsv, done);
+});
+function fallbackCopy(text, done) {
+  const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); done(); } catch (e) { /* the CSV download in Sources still works */ }
+  ta.remove();
+}
+
+/* ---------- show or hide cards that depend on data ---------- */
+dash.onData(() => {
+  const has = (id) => { const r = rowsOf(id); return !!(r && r.length); };
+  const toggle = (sel, show) => document.querySelectorAll(sel).forEach((el) => { el.hidden = !show; });
+  toggle('.lx-chg-none', !has('changes')); toggle('.lx-chg-table', has('changes'));
+  toggle('.lx-conf-none', !has('conflicts')); toggle('.lx-conf-table', has('conflicts'));
+  toggle('.lx-fig-none', !has('figures')); toggle('.lx-fig-table', has('figures'));
+  toggle('.lx-ir-none', !has('ir_metrics')); toggle('.lx-ir-table', has('ir_metrics'));
+  toggle('#hypotheses', has('hypotheses')); toggle('#attr-signals', has('attr_signals'));
+  toggle('#ach', (rowsOf('hypotheses') || []).length >= 2);
+  toggle('#matrix', has('ttps'));
+  const victims = rowsOf('victims') || [];
+  toggle('#datatypes', victims.some((v) => v.data_types));
+  const sum = rowsOf('summary');
+  const s0 = (sum && sum[0]) || {};
+  toggle('.lx-relevance', !!s0.relevance);
+  const soc = has('software') || has('killchain');
+  toggle('.lx-tab[data-tab="soc"]', soc || !!s0.soc_note);
+  toggle('.lx-socnote', !!s0.soc_note);
+  toggle('#software', soc); toggle('#killchain', soc);
+});
+
+/* ---------- drawings ---------- */
+dash.draw('sumfield', (el) => {
+  const rows = rowsOf('summary');
+  const v = rows && rows[0] ? rows[0][el.dataset.field] : null;
+  el.textContent = v == null || v === '' ? '–' : String(v);
+});
+dash.draw('asof', (el) => {
+  const rows = rowsOf('summary');
+  const v = rows && rows[0] ? rows[0].as_of : null;
+  el.textContent = v ? fmtWhen(v) + ' UTC' : '–';
+});
+dash.draw('newest', (el) => {
+  const rows = rowsOf('summary');
+  const s0 = (rows && rows[0]) || {};
+  el.replaceChildren();
+  el.className = '';
+  if (!s0.newest_source_date) { el.textContent = ''; return; }
+  el.append('Newest source ');
+  const b = document.createElement('b'); b.textContent = fmtWhen(s0.newest_source_date); el.appendChild(b);
+  const lag = s0.as_of ? (new Date(String(s0.as_of).slice(0, 10)) - new Date(s0.newest_source_date)) / 864e5 : 0;
+  if (lag > 30) { el.className = 'lx-stale'; el.append(' (' + Math.round(lag) + ' days before the as-of date)'); }
+});
+dash.draw('conflictlink', (el) => {
+  const rows = rowsOf('conflicts');
+  const n = rows ? rows.length : 0;
+  el.textContent = n ? (n === 1 ? '1 source conflict' : n + ' source conflicts') : 'No source conflicts';
+});
+dash.draw('patchnote', (el) => {
+  const rows = rowsOf('software');
+  if (!rows) { el.textContent = '–'; return; }
+  const cves = rows.filter((r) => r.cve);
+  el.textContent = cves.length
+    ? 'CVEs in scope: ' + cves.map((r) => r.cve + ' (fixed in ' + (r.fixed_version || 'not stated') + ')').join('; ') + '.'
+    : 'No CVE or software vulnerability is reported, so there is no patch target.';
+});
+
+function drawTiles(el, id, labelKey, clickable) {
+  const rows = rowsOf(id);
+  el.replaceChildren();
+  el.classList.toggle('dash-skeleton', !rows);
+  if (!rows) return;
+  for (const h of rows) {
+    if (h.metric === 'Actor-asserted' && !h.value) continue;
+    const t = document.createElement('div'); t.className = 'lx-tile';
+    const v = document.createElement('div'); v.className = 'lx-tile-v'; v.textContent = fmtNum(h.value);
+    if (h.unit) { const u = document.createElement('span'); u.className = 'lx-tile-u'; u.textContent = h.unit; v.appendChild(u); }
+    const l = document.createElement('div'); l.className = 'lx-tile-l'; l.textContent = h[labelKey];
+    t.append(v, l);
+    if (clickable && clickable[h.metric]) {
+      t.setAttribute('role', 'link'); t.tabIndex = 0;
+      const go = clickable[h.metric];
+      t.addEventListener('click', go); t.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
+    }
+    el.appendChild(t);
+  }
+}
+dash.draw('tiles', (el) => drawTiles(el, 'headline_values', 'label'));
+dash.draw('evtiles', (el) => drawTiles(el, 'ledger_counts', 'metric', {
+  'Source conflicts': () => { showPage('overview'); document.getElementById('conflicts').scrollIntoView({ block: 'start' }); },
+}));
+
+/* Timeline events open in place: the event, every claim behind it in full, its status and its sources. */
+function eventDetail(r, tr) {
+  const ledger = new Map((rowsOf('ledger') || []).map((c) => [c.claim_id, c]));
+  const sources = new Map((rowsOf('sources') || []).map((x) => [x.source_id, x]));
+  const known = knownIds();
+  const d = document.createElement('tr'); d.className = 'lx-detail'; d.hidden = true; d.id = 'detail-' + r.event_id;
+  const td = document.createElement('td'); td.colSpan = tr.children.length;
+  String(r.claim_ids || '').split(/[\s,]+/).filter(Boolean).forEach((cid) => {
+    const c = ledger.get(cid);
+    const p = document.createElement('p'); p.className = 'lx-detail-claim';
+    if (!c) { p.textContent = cid + ': not in the ledger.'; td.appendChild(p); return; }
+    const head = document.createElement('span'); linkify(head, cid, known); p.appendChild(head);
+    p.append(' ');
+    const st = document.createElement('span'); st.className = 'lx-st lx-st-' + c.status; st.textContent = c.status; p.appendChild(st);
+    p.append(': ' + c.claim + ' ');
+    const srcs = String(c.source_ids || '').split(/[\s,]+/).filter(Boolean);
+    if (srcs.length) p.append('Sources: ');
+    srcs.forEach((sid, i) => {
+      const x = sources.get(sid);
+      const ref = document.createElement('span'); linkify(ref, sid, known); p.appendChild(ref);
+      const href = x && safeUrl(x.url);
+      if (x) { p.append(' '); p.appendChild(href ? extLink(href, x.publisher || x.title) : document.createTextNode(x.publisher || x.title)); }
+      p.append(i < srcs.length - 1 ? '; ' : '.');
+    });
+    td.appendChild(p);
+  });
+  if (!td.children.length) td.textContent = 'No claims are cited for this event.';
+  d.appendChild(td);
+  tr.classList.add('lx-ev'); tr.tabIndex = 0; tr.setAttribute('aria-expanded', 'false');
+  const flip = () => { d.hidden = !d.hidden; tr.classList.toggle('lx-ev-open', !d.hidden); tr.setAttribute('aria-expanded', String(!d.hidden)); };
+  tr.addEventListener('click', flip);
+  tr.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
+  tr.after(d);
+}
+function openEvent(id, scroll) {
+  const row = document.getElementById('row-' + id), det = document.getElementById('detail-' + id);
+  if (!row) return;
+  if (det && det.hidden) row.click();
+  if (scroll) flash(row);
+}
+
+dash.draw('kj', (tb) => fillTable(tb, 'judgments', ['claim_id', 'claim', 'basis', 'contrary']));
+dash.draw('conflicts', (tb) => fillTable(tb, 'conflicts', ['conflict_id', 'topic', 'position_a', 'position_b', 'resolution']));
+dash.draw('irmetrics', (tb) => fillTable(tb, 'ir_metrics', ['metric', 'value', 'precision', 'note'], { num: 'value' }));
+dash.draw('events', (tb) => fillTable(tb, 'timeline', ['event_id', 'when', 'precision', 'lane', 'event', 'status', 'claim_ids'],
+  { when: 'when', status: ['status'], rowId: 'event_id', after: eventDetail }));
+dash.draw('figures', (tb) => fillTable(tb, 'figures', ['figure_id', 'label', 'value', 'status', 'note'], { num: 'value', status: ['status'] }));
+dash.draw('victims', (tb) => fillTable(tb, 'victims', ['victim_id', 'victim', 'role', 'tier', 'impact', 'data_types', 'count_method', 'claim_ids'], { status: ['tier'] }));
+dash.draw('ttptable', (tb) => fillTable(tb, 'ttps', ['technique_id', 'name', 'tactic', 'incident', 'how_used', 'occurrence', 'confidence', 'event_ids', 'claim_ids', 'check', 'mitigations'],
+  { mono: ['technique_id', 'tactic'], tech: ['technique_id'], mitigations: 'mitigations',
+    value: (r, c) => (c === 'tactic' && r.domain === 'ics' ? 'ics: ' + r.tactic : r[c]) }));
+dash.draw('software', (tb) => fillTable(tb, 'software', ['software_id', 'software', 'version', 'role', 'how', 'cve', 'affected_versions', 'fixed_version', 'claim_ids'], { mono: ['version'] }));
+dash.draw('killchain', (tb) => fillTable(tb, 'killchain', KC_COLS, { mono: ['process', 'artefacts', 'network'], status: ['observed'], tech: ['techniques'] }));
+dash.draw('hypotheses', (tb) => fillTable(tb, 'hypotheses', ['row_id', 'party', 'likelihood', 'confidence', 'for_signals', 'against_signals']));
+dash.draw('attrsignals', (tb) => fillTable(tb, 'attr_signals', ['row_id', 'party', 'position', 'limits', 'claim_ids'], { rowId: 'row_id' }));
+dash.draw('statements', (tb) => fillTable(tb, 'statements', ['row_id', 'party', 'position']));
+dash.draw('sources', (tb) => fillTable(tb, 'sources', ['source_id', 'title', 'publisher', 'date', 'reliability', 'position', 'originator', 'interest', 'retrieval'], { link: 'title', rowId: 'source_id' }));
+dash.draw('ledger', (tb) => fillTable(tb, 'ledger', ['claim_id', 'topic', 'claim', 'status', 'credibility', 'source_ids', 'corroboration', 'basis', 'superseded_by'], {
+  status: ['status'], rowId: 'claim_id',
+  filter: (r) => !window.lxQuery || [r.claim_id, r.topic, r.claim, r.status, r.source_ids, r.corroboration].join(' ').toLowerCase().includes(window.lxQuery),
+}));
+dash.draw('changes', (tb) => fillTable(tb, 'changes', ['change_id', 'kind', 'item', 'before', 'after'], { status: ['kind'] }));
+dash.draw('names', (tb) => fillTable(tb, 'names', ['scope_id', 'kind', 'value', 'note']));
+const closedClass = (r) => (r.status === 'Closed' ? 'lx-closed' : '');
+const gapStatus = (r, c) => (c === 'status'
+  ? (r.status === 'Closed' ? 'Closed by ' + (r.closed_by || '?') : 'Open' + (String(r.blocking) === 'true' ? ' (blocking)' : ''))
+  : r[c]);
+dash.draw('actions', (tb) => fillTable(tb, 'actions', ['item_id', 'item', 'next_step', 'owner', 'claim_ids'], { rowClass: closedClass }));
+dash.draw('watch', (tb) => fillTable(tb, 'watch', ['item_id', 'item', 'why', 'next_step', 'claim_ids'], { rowClass: closedClass }));
+dash.draw('gapitems', (tb) => fillTable(tb, 'gap_items', ['item_id', 'item', 'why', 'next_step', 'status'], { rowClass: closedClass, value: gapStatus }));
+
+function drawBars(el, id, fill) {
+  const rows = rowsOf(id);
+  el.replaceChildren();
+  el.classList.toggle('dash-skeleton', !rows);
+  if (!rows) return;
+  const max = d3.max(rows, (r) => r.victims) || 1;
+  for (const r of rows) {
+    const row = document.createElement('div'); row.className = 'lx-bar-row';
+    const l = document.createElement('div'); l.textContent = r.tier;
+    const track = document.createElement('div');
+    const bar = document.createElement('div'); bar.className = 'lx-bar';
+    bar.style.width = (r.victims / max * 100) + '%'; bar.style.background = fill(r);
+    track.appendChild(bar);
+    const n = document.createElement('div'); n.className = 'lx-bar-n'; n.textContent = d3.format(',')(r.victims);
+    row.append(l, track, n); el.appendChild(row);
+  }
+}
+dash.draw('tiers', (el) => {
+  const fill = { Confirmed: 'var(--color-ok)', Claimed: 'var(--color-warn)', Reported: dash.colors[1], Assessed: 'var(--cds-chart-muted)', Unknown: 'var(--color-bad)' };
+  drawBars(el, 'victims_by_tier', (r) => fill[r.tier]);
+});
+dash.draw('datatypes', (el) => drawBars(el, 'victims_by_data', (r) => (r.tier === 'none reported' ? 'var(--cds-chart-muted)' : dash.colors[0])));
+
+const FALLBACK_TACTICS = ['reconnaissance', 'resource-development', 'initial-access', 'execution', 'persistence', 'privilege-escalation', 'stealth', 'defense-impairment', 'credential-access', 'discovery', 'lateral-movement', 'collection', 'command-and-control', 'exfiltration', 'impact'];
+/* Column order: Enterprise tactics, then ICS tactics, then unmapped. Keys carry the domain because ICS reuses some shortnames. */
+function tacticColumns() {
+  const t = rowsOf('tactics') || [];
+  const ent = t.filter((x) => x.domain === 'enterprise').sort((a, b) => a.order - b.order).map((x) => 'enterprise|' + x.tactic);
+  const ics = t.filter((x) => x.domain === 'ics').sort((a, b) => a.order - b.order).map((x) => 'ics|' + x.tactic);
+  return (ent.length ? ent : FALLBACK_TACTICS.map((x) => 'enterprise|' + x)).concat(ics, ['enterprise|unmapped', 'ics|unmapped']);
+}
+const tacKey = (r) => (r.domain || 'enterprise') + '|' + r.tactic;
+const tacLabel = (key) => { const [d, t] = key.split('|'); return (d === 'ics' ? 'ICS: ' : '') + t.replace(/-/g, ' '); };
+const techCell = (r, occ, cls) => {
+  const c = document.createElement('div'); c.className = cls;
+  const colour = occ[r.occurrence] || 'var(--cds-chart-muted)';
+  if (cls === 'lx-tech') c.style.borderLeftColor = colour; else c.style.borderColor = colour;
+  const b = document.createElement('b');
+  if (r.technique_id !== 'Unmapped') { b.appendChild(extLink(techUrl(r.technique_id), r.technique_id)); b.append(' '); }
+  b.append(r.name);
+  const s = document.createElement('div'); s.textContent = r.occurrence + ', ' + String(r.confidence).toLowerCase() + ' confidence';
+  s.style.color = 'var(--color-fg-muted)';
+  c.append(b, s);
+  return c;
+};
+dash.draw('chain', (el) => {
+  const rows = rowsOf('ttps');
+  el.replaceChildren();
+  el.classList.toggle('dash-skeleton', !rows);
+  if (!rows) return;
+  const occ = OCC_FILL();
+  const order = tacticColumns();
+  const multi = new Set(rows.map((r) => r.incident || '').filter(Boolean)).size > 1;
+  const groups = [...new Set(rows.map((r) => (multi ? (r.incident || 'Unassigned') + '|' : '|') + r.phase))];
+  for (const g of groups) {
+    const [inc, p] = g.split('|');
+    const col = document.createElement('div'); col.className = 'lx-phase';
+    const h = document.createElement('div'); h.className = 'lx-phase-h'; h.textContent = multi ? inc + ': ' + p : p; col.appendChild(h);
+    const inGroup = rows.filter((r) => r.phase === p && (!multi || (r.incident || 'Unassigned') === inc));
+    const tactics = [...new Set(inGroup.map(tacKey))].sort((a, b) => order.indexOf(a) - order.indexOf(b));
+    for (const t of tactics) {
+      const th = document.createElement('div'); th.className = 'lx-tactic'; th.textContent = tacLabel(t); col.appendChild(th);
+      for (const r of inGroup.filter((x) => tacKey(x) === t)) col.appendChild(techCell(r, occ, 'lx-tech'));
+    }
+    el.appendChild(col);
+  }
+});
+dash.draw('matrix', (el) => {
+  const rows = rowsOf('ttps');
+  el.replaceChildren();
+  el.classList.toggle('dash-skeleton', !rows);
+  if (!rows) return;
+  const occ = OCC_FILL();
+  const order = tacticColumns();
+  const keys = [...new Set(rows.map(tacKey))].sort((a, b) => (order.indexOf(a) + 1 || 999) - (order.indexOf(b) + 1 || 999));
+  for (const t of keys) {
+    const col = document.createElement('div');
+    const h = document.createElement('div'); h.className = 'lx-mcol-h'; h.textContent = tacLabel(t); col.appendChild(h);
+    const seen = new Set();
+    for (const r of rows.filter((x) => tacKey(x) === t)) {
+      const key = r.technique_id + '|' + r.name;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      col.appendChild(techCell(r, occ, 'lx-mcell'));
+    }
+    el.appendChild(col);
+  }
+});
+dash.draw('occlegend', (el) => {
+  const rows = rowsOf('ttps') || [];
+  const occ = OCC_FILL();
+  el.replaceChildren();
+  for (const k of OCC_ORDER.filter((o) => rows.some((r) => r.occurrence === o))) {
+    const s = document.createElement('span'); const i = document.createElement('i');
+    i.style.background = occ[k]; i.style.borderRadius = '2px'; s.append(i, document.createTextNode(k)); el.appendChild(s);
+  }
+});
+
+/* Analysis of competing hypotheses: signal rows down the side, hypotheses across the top. */
+dash.draw('ach', (el) => {
+  const hyps = rowsOf('hypotheses') || [];
+  el.replaceChildren();
+  if (hyps.length < 2) return;
+  const known = knownIds();
+  const cites = (text) => new Set(String(text || '').match(/\b[SCH]\d{2,}\b/g) || []);
+  const forSets = hyps.map((h) => cites(h.for_signals || h.for_evidence)), againstSets = hyps.map((h) => cites(h.against_signals || h.against_evidence));
+  let signals = (rowsOf('attr_signals') || []).map((e) => ({ id: e.row_id, label: e.party, refs: [e.row_id].concat(String(e.claim_ids || '').split(/[\s,]+/).filter(Boolean)) }));
+  if (!signals.length) {
+    const all = new Set(); forSets.concat(againstSets).forEach((s) => s.forEach((x) => all.add(x)));
+    signals = [...all].sort().map((id) => ({ id, label: '', refs: [id] }));
+  }
+  const table = document.createElement('table'); table.className = 'lx-table lx-ach';
+  const head = document.createElement('tr');
+  ['Signal'].concat(hyps.map((h) => h.row_id + ' ' + h.party)).forEach((t) => { const th = document.createElement('th'); th.textContent = t; head.appendChild(th); });
+  const thead = document.createElement('thead'); thead.appendChild(head); table.appendChild(thead);
+  const tbody = document.createElement('tbody');
+  const score = hyps.map(() => 0);
+  for (const e of signals) {
+    const tr = document.createElement('tr');
+    const td0 = document.createElement('td'); linkify(td0, e.id, known); if (e.label) td0.append(' ' + e.label); tr.appendChild(td0);
+    hyps.forEach((h, i) => {
+      const f = e.refs.some((x) => forSets[i].has(x)), a = e.refs.some((x) => againstSets[i].has(x));
+      const td = document.createElement('td');
+      const v = f && a ? 'C/I' : f ? 'C' : a ? 'I' : '–';
+      td.textContent = v; td.className = 'lx-ach-' + (a ? 'I' : f ? 'C' : 'N');
+      if (a) score[i] += 1;
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  }
+  const foot = document.createElement('tr');
+  const f0 = document.createElement('td'); f0.textContent = 'Inconsistent items'; foot.appendChild(f0);
+  score.forEach((n) => { const td = document.createElement('td'); td.textContent = String(n); foot.appendChild(td); });
+  tbody.appendChild(foot);
+  table.appendChild(tbody);
+  el.appendChild(table);
+});
+
+dash.draw('diamond', (el) => {
+  const rows = rowsOf('diamond');
+  el.replaceChildren();
+  el.classList.toggle('dash-skeleton', !rows);
+  if (!rows) return;
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('viewBox', '0 0 100 100'); svg.setAttribute('preserveAspectRatio', 'none'); svg.setAttribute('aria-hidden', 'true');
+  const line = (pts, dash_) => {
+    const p = document.createElementNS(ns, 'polyline');
+    p.setAttribute('points', pts); p.setAttribute('fill', 'none'); p.setAttribute('stroke', 'var(--color-border-line)');
+    p.setAttribute('stroke-width', '2'); p.setAttribute('vector-effect', 'non-scaling-stroke');
+    if (dash_) p.setAttribute('stroke-dasharray', '4 4');
+    svg.appendChild(p);
+  };
+  line('50,16 83,50 50,84 17,50 50,16');
+  line('50,16 50,84', true); line('17,50 83,50', true);
+  el.appendChild(svg);
+  const core = document.createElement('div'); core.className = 'lx-core'; const sum = rowsOf('summary'); core.textContent = sum && sum[0] ? sum[0].attack : '';
+  el.appendChild(core);
+  const known = knownIds();
+  for (const r of rows) {
+    const v = document.createElement('div'); v.className = 'lx-vx lx-a-' + r.party;
+    const b = document.createElement('b'); b.textContent = r.party;
+    const t = document.createElement('span'); linkify(t, r.position || '', known);
+    v.append(b, t); el.appendChild(v);
+  }
+});
+
+const LANE_ORDER = ['Attacker', 'Victim and response', 'Disclosure', 'Government and law enforcement', 'Context'];
+dash.draw('lanes', (el) => {
+  const rows = rowsOf('timeline');
+  el.replaceChildren();
+  el.classList.toggle('dash-skeleton', !rows);
+  if (!rows || !rows.length || el.closest('.lx-page').hidden) return;
+  const mode = window.lxLaneMode;
+  const W = Math.max(300, el.clientWidth);
+  const timed = (r) => /T\d{2}:\d{2}/.test(r.when);
+  const mins = (s) => Number(s.slice(11, 13)) * 60 + Number(s.slice(14, 16));
+  let evs = rows.slice();
+  const dayCounts = d3.rollup(evs.filter(timed), (v) => v.length, (r) => r.when.slice(0, 10));
+  const busiest = [...dayCounts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0]?.[0];
+  if (mode === 'day') evs = evs.filter((r) => busiest && r.when.startsWith(busiest) && timed(r));
+  if (!evs.length) { const p = document.createElement('p'); p.className = 'lx-note'; p.textContent = 'No timed events to plot in this view.'; el.appendChild(p); return; }
+  const lanes = LANE_ORDER.filter((l) => evs.some((r) => r.lane === l));
+  const laneH = 46, top = 8, axisH = 34, left = 8, right = 16;
+  const H = top + lanes.length * laneH + axisH;
+  const innerW = W - left - right;
+  const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Swim-lane timeline of the attack');
+  const laneY = (l) => top + lanes.indexOf(l) * laneH;
+  lanes.forEach((l) => {
+    svg.append('line').attr('x1', left).attr('x2', W - right).attr('y1', laneY(l) + laneH - 2).attr('y2', laneY(l) + laneH - 2).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('text').attr('x', left).attr('y', laneY(l) + 12).attr('fill', 'var(--color-fg-muted)').attr('font-size', 11).text(l);
+  });
+  const dotY = (l) => laneY(l) + 30;
+  let xOf, endXOf, ticks = [], breaks = [];
+  if (mode === 'day') {
+    const lo = Math.max(0, Math.floor((d3.min(evs, (r) => mins(r.when)) - 30) / 60) * 60);
+    const hi = Math.min(1440, Math.ceil((d3.max(evs, (r) => Math.max(mins(r.when), r.end ? mins(r.end) : 0)) + 30) / 60) * 60);
+    const x = d3.scaleLinear([lo, hi], [left + 6, W - right - 6]);
+    xOf = (r) => x(mins(r.when));
+    endXOf = (r) => (r.end ? x(mins(r.end)) : null);
+    const step = innerW < 520 ? 180 : 120;
+    for (let m = Math.ceil(lo / 60) * 60; m <= hi; m += step) ticks.push({ x: x(m), label: String(Math.floor(m / 60)).padStart(2, '0') + ':00' });
+  } else {
+    const days = [...new Set(evs.map((r) => r.when.slice(0, 10)))].sort();
+    const slotW = innerW / days.length;
+    const frac = (r) => (timed(r) ? mins(r.when) / 1440 : 0.5);
+    const pos = new Map();
+    const thisYear = days.length ? days[days.length - 1].slice(0, 4) : '';
+    days.forEach((d, i) => {
+      const inDay = evs.filter((r) => r.when.slice(0, 10) === d).sort((a, b) => frac(a) - frac(b) || a.event_id.localeCompare(b.event_id));
+      const pad = 10, span = slotW - 2 * pad;
+      inDay.forEach((r, k) => pos.set(r.event_id, left + i * slotW + pad + (k + 0.5) * span / inDay.length));
+      ticks.push({ x: left + i * slotW + slotW / 2, label: fmtWhen(d).replace(new RegExp(' ' + thisYear + '$'), '') });
+      if (i > 0) {
+        const gap = (new Date(d) - new Date(days[i - 1])) / 864e5;
+        if (gap > 1) breaks.push(left + i * slotW);
+      }
+    });
+    xOf = (r) => pos.get(r.event_id);
+    endXOf = (r) => {
+      if (!r.end || !timed(r)) return null;
+      const d = r.when.slice(0, 10);
+      const endFrac = mins(r.end) / 1440;
+      const within = evs.filter((e) => e.when.slice(0, 10) === d && timed(e) && mins(e.when) / 1440 <= endFrac);
+      return d3.max(within, (e) => pos.get(e.event_id));
+    };
+  }
+  const axisY = top + lanes.length * laneH;
+  svg.append('line').attr('x1', left).attr('x2', W - right).attr('y1', axisY).attr('y2', axisY).attr('stroke', 'var(--cds-chart-axis)');
+  const every = Math.max(1, Math.ceil(ticks.length / Math.max(1, Math.floor(innerW / 70))));
+  ticks.forEach((t, i) => { if (i % every === 0) svg.append('text').attr('x', t.x).attr('y', axisY + 18).attr('text-anchor', 'middle').attr('fill', 'var(--color-fg-muted)').attr('font-size', 11).text(t.label); });
+  breaks.forEach((bx) => svg.append('text').attr('x', bx).attr('y', axisY + 4).attr('text-anchor', 'middle').attr('fill', 'var(--color-fg-muted)').attr('font-size', 12).text('//'));
+  const tip = document.createElement('div'); tip.className = 'lx-tip'; tip.hidden = true; el.appendChild(tip);
+  const showTip = (event, r) => {
+    tip.replaceChildren();
+    const w = document.createElement('div'); w.className = 'lx-tip-when'; w.textContent = r.event_id + ' · ' + fmtWhen(r.when) + (r.end ? ' to ' + fmtWhen(r.end).split(', ').pop() : '') + ' · ' + r.status;
+    const t = document.createElement('div'); t.textContent = r.event;
+    tip.append(w, t); tip.hidden = false;
+    const [px, py] = d3.pointer(event, el);
+    const tw = tip.offsetWidth;
+    tip.style.left = Math.max(0, Math.min(el.clientWidth - tw, px - tw / 2)) + 'px';
+    tip.style.top = Math.max(0, py - tip.offsetHeight - 12) + 'px';
+  };
+  const hideTip = () => { tip.hidden = true; };
+  const seen = new Map();
+  evs.forEach((r) => {
+    const x = xOf(r); if (x == null) return;
+    const key = r.lane + '|' + Math.round(x);
+    const n = seen.get(key) || 0; seen.set(key, n + 1);
+    const y = dotY(r.lane) - n * 7;
+    const ex = endXOf(r);
+    if (ex != null && ex > x) {
+      svg.append('rect').attr('x', x).attr('y', y - 5).attr('width', ex - x).attr('height', 10).attr('rx', 3)
+        .attr('fill', STATUS_FILL[r.status]).attr('opacity', 0.35)
+        .on('mousemove', (e) => showTip(e, r)).on('mouseleave', hideTip);
+    }
+    const dot = svg.append('circle').attr('cx', x).attr('cy', y).attr('r', 6).attr('fill', STATUS_FILL[r.status] || 'var(--cds-chart-muted)')
+      .attr('stroke', 'var(--color-panel)').attr('stroke-width', 1.5).style('cursor', 'pointer')
+      .on('mousemove', (e) => showTip(e, r)).on('mouseleave', hideTip)
+      .on('click', () => openEvent(r.event_id, true));
+    dot.append('title').text(r.event_id + ': ' + r.event);
+  });
+});
+</script>
