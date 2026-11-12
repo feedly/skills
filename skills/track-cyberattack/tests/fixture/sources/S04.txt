@@ -1,0 +1,5 @@
+Crimson Ferry exploits FerryGate | Northlight Research | 2026-10-25 | https://example.com/northlight/crimson-ferry | retrieval: read
+We observed the intruders drop a web shell named health.aspx after exploiting CVE-2026-41234.
+The IIS worker process w3wp.exe spawned cmd.exe on the compromised appliance.
+Crimson Ferry listed Harbor Ledger on its leak site on 22 October 2026.
+Harbor Ledger's appliance first contacted the attacker's server on 12 October 2026.
